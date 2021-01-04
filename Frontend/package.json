@@ -1,0 +1,52 @@
+{
+  "name": "titaniumcad",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.14",
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^11.2.2",
+    "@testing-library/user-event": "^12.6.0",
+    "axios": "^0.21.1",
+    "classnames": "^2.2.6",
+    "react": "^17.0.1",
+    "react-contexify": "^5.0.0",
+    "react-dom": "^17.0.1",
+    "react-draggable": "^4.4.3",
+    "react-list": "^0.8.16",
+    "react-popout": "^1.0.3",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.1",
+    "react-select": "^3.1.1",
+    "react-tiny-fab": "^4.0.2",
+    "react-toastify": "^6.2.0",
+    "reactjs-popup": "^2.0.4",
+    "web-vitals": "^0.2.4"
+  },
+  "scripts": {
+    "start": "set PORT=80 && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

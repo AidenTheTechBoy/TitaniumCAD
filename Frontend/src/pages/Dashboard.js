@@ -1,0 +1,117 @@
+import { faCar, faCog, faDesktop, faFire, faLaptop, faUser } from '@fortawesome/free-solid-svg-icons'
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Header from './Components/Header'
+import React from 'react'
+
+export default class Dashboard extends React.Component {
+   
+    constructor(props) {
+        super(props)
+        this.state = {
+            width: 0,
+            height: 0,
+            timedate: new Date().toLocaleString()
+        }
+        if (!localStorage.getItem('cookie')) {
+            window.location = '/login'
+        }
+    }
+
+    updateDimensions() {
+        if (window.innerWidth > 1440) {
+            this.setState({ width: 1440, height: window.innerHeight });
+        } else {
+            this.setState({ width: window.innerWidth, height: window.innerHeight });
+        }
+        
+        console.log(  Math.floor(this.state.width / 240) )
+    }
+
+    componentDidMount() {
+        this.updateDimensions();
+        window.addEventListener("resize", this.updateDimensions.bind(this))
+        setInterval(() => {
+            this.setState({timedate: new Date().toLocaleString()})
+        }, 1000)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions.bind(this))
+    }
+
+    render() {
+        return (
+            <div>
+                <Header back='/logout' message='Logout' logout={true} />
+                <div className='dashboard-container'>
+                    <div className='dashboard-server'>
+                        <div style={{display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
+                            <img className='icon-lg' src='example-icon.png' alt='Server Icon.' />
+                            <div style={{marginLeft: '15px', alignSelf: 'center', justifySelf: 'center'}}>
+                                <h2 className='header-large'>{localStorage.getItem('server_name')}</h2>
+                                <h3 className='dashboard-date'>{this.state.timedate}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 className='page-header' style={{flex: 1, alignSelf: 'center'}}>Welcome to the panel, <br/>{localStorage.getItem('username')}</h1>
+                </div>
+                <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
+                    <h3 className='dashboard-message-header'>Server Message</h3>
+                    <p className='dashboard-message-body'>Welcome to Blazin Roleplay's offical CAD system. Support can be found in the Discord or on our website. Civilian permissions are automatic, but to get higher-level permissions in the CAD please contact a department supervisor. Please follow the rules, and have fun!</p>
+                </div>
+                <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '50px'}}>
+                    <div className='dashboard-item' onClick={() => window.location = '/civilians'}>
+                        <div className='dashboard-icon-container'>
+                            <FontAwesomeIcon className='dashboard-icon' icon={faUser} />
+                        </div>
+                        Civilian Manager
+                    </div>
+                    <div className='dashboard-item' onClick={() => window.location = '/dmv'}>
+                        <div className='dashboard-icon-container'>
+                            <FontAwesomeIcon className='dashboard-icon' icon={faCar} />
+                        </div>
+                        Department of Motor Vehicles
+                    </div>
+                    <div className='dashboard-item' onClick={() => window.location = '/atf'}>
+                        <div className='dashboard-icon-container'>
+                            <FontAwesomeIcon className='dashboard-icon' icon={faFire} />
+                        </div>
+                        Alcohol Tobacco and Firearms
+                    </div>
+                    <div className='dashboard-item'>
+                        <div className='dashboard-icon-container'>
+                            <FontAwesomeIcon className='dashboard-icon' icon={faLaptop} />
+                        </div>
+                        Mobile Data Terminal
+                    </div>
+                    <div className='dashboard-item' onClick={() => window.location = '/cad'}>
+                        <div className='dashboard-icon-container'>
+                            <FontAwesomeIcon className='dashboard-icon' icon={faDesktop} />
+                        </div>
+                        Computer Aided Dispatch
+                    </div>
+                    <div className='dashboard-item' onClick={() => window.location = '/settings'}>
+                        <div className='dashboard-icon-container'>
+                            <FontAwesomeIcon className='dashboard-icon' icon={faCog} />
+                        </div>
+                        Manage Server
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+}
+
+
+
+/* <div className='dashboard-logout' style={{backgroundColor: 'red'}} onClick={async () => {
+        await axios.post(Config.api + '/logout', {
+            cookie: localStorage.getItem('cookie')
+        })
+        localStorage.removeItem('cookie')
+        window.location = '/login'
+    }}>
+        Logout
+    </div> */
