@@ -142,7 +142,7 @@ export default class Settings extends React.Component {
                                     this.setState({global_public: e.target.checked})
                                 }}/>
                             </div>
-                            <p className='popup-input-prompt-sub'>If this setting is enabled, members will automatically be given civilian permissions upon creating account. Otherwise, they will require manual approval to become a civilian.</p>
+                            <p className='popup-input-prompt-sub'>If this setting is enabled, new members will automatically be given civilian permissions upon creating account. Otherwise, they will require manual approval in order to access normal civilian features such as vehicle and firearm registration.</p>
                         </div>
                     </div>
                     <hr color='#212026' style={{marginTop: 40, marginBottom: 20}} />
