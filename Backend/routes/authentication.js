@@ -227,24 +227,14 @@ router.post('/logout', async (req, res) => {
     res.status(200).send('Logged Out')
 })
 
-// User Information
-router.post('/info', async (req, res) => {
-    let userID = await GetID(req, res, 'USER')
-    let memberID = await GetID(req, res, 'MEMBER')
-    res.status(200).send(userID + ' <-> ' + memberID)
-})
-
 // Verify Email
 router.get('/verify', async (req, res) => {
     const code = req.query.code
-
     if (code) {
         VerifyEmail(code, res)
         return
     }
-    
     res.status(400).send('No Code Specified')
-
 })
 
 

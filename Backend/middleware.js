@@ -86,22 +86,4 @@ const ProvideServerID = async function (req, res, next) {
     next()
 }
 
-const PermissionInCommunity = async function (req, res, permission) {
-
-    //Check Owner
-    const checkOwner = await CAD.query(`SELECT id FROM communities WHERE id = ? AND owner_member_id = ?`, [req.community, req.member])
-    if (checkOwner[0].length > 0) {
-        return true
-    }
-
-    //Check Permission
-    const checkPerms = await CAD.query(`SELECT id FROM members WHERE id = ? AND permission_${permission.toLowerCase()} = 1`, [req.community, req.member])
-    if (checkPerms[0].length > 0) {
-        return true
-    }
-
-    res.status(403).send('You do not have permission to perform this action.')
-    return false
-}
-
-module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, PermissionInCommunity, ProvideServerID }
+module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID }

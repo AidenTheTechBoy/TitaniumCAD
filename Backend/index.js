@@ -41,10 +41,6 @@ app.use('/', authRoutes)
 const { communityRoutes } = require('./routes/communities')
 app.use('/', communityRoutes)
 
-// Permissions
-const { permissionRoutes } = require('./routes/permissions')
-app.use('/', permissionRoutes)
-
 // Civilian Routes
 const { civilianRoutes } = require('./routes/civilians')
 app.use('/', civilianRoutes)
