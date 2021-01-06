@@ -126,7 +126,6 @@ button {
     min-width: 200px;
 }
 .popup-input {
-    width: 100%;
     border: none;
     outline: none;
     font-size: 20px;
@@ -136,6 +135,17 @@ button {
     border-style: solid;
     border-width: 5px;
     border-color: #111015;
+    background-color: #212026;
+    color: white;
+    text-transform: uppercase;
+}
+.popup-call-select {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-family: 'Ruda', sans-serif;
     background-color: #212026;
     color: white;
     text-transform: uppercase;
@@ -500,8 +510,8 @@ button {
     margin-right: 14px;
 }
 .cad-editor-cell > input {
+    width: calc(100% - 16px);
     display: table-cell;
-    width: 100%;
     font-family: 'Ruda', sans-serif;
     font-size: 15px;
     background-color: #212026;

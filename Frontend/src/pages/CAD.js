@@ -24,6 +24,7 @@ export default class CAD extends React.Component {
             calls: [],
             '911': [],
             bolos: [],
+            code_picker: [],
         }
     }
 
@@ -52,15 +53,23 @@ export default class CAD extends React.Component {
             'server_id': this.state.server_id,
         })
 
+        let codes = []
+        for (const i in res.data.codes) {
+            const code = res.data.codes[i]
+            codes[codes.length] = {label: `${code.code}: ${code.meaning}`, value: code.code}
+        }
+
         this.setState({
             units: res.data.units,
             calls: res.data.calls,
             '911': res.data['911'],
             bolos: res.data.bolos,
             codes: res.data.codes,
+            code_picker: codes,
             signal: res.data.signal,
             lastRequestCompletion: Date.now()
         })
+
     }
 
     async checkCallUpdate() {
@@ -442,12 +451,24 @@ export default class CAD extends React.Component {
                                 {this.GenerateCallField('Call Title', 'callTitle', 1)}
                             </div>
                             <div className='cad-editor-row'>
-                                {this.GenerateCallField('Origin', 'callOrigin', 2)}
-                                {this.GenerateCallField('Status', 'callStatus', 2)}
-                                {this.GenerateCallField('Priority', 'callPriority', 1)}
+                                {this.GenerateCallField('Origin', 'callOrigin', 2, [
+                                    {label: '911 Call', value: '911 Call'},
+                                    {label: 'Observed', value: 'Observed'},  
+                                ])}
+                                {this.GenerateCallField('Status', 'callStatus', 2, [
+                                    {label: 'Active', value: 'Active'},
+                                    {label: 'Pending', value: 'Pending'},
+                                    {label: 'On Hold', value: 'On Hold'},
+                                    {label: 'Closed', value: 'Closed'},
+                                ])}
+                                {this.GenerateCallField('Priority', 'callPriority', 1, [
+                                    {label: '1', value: 1},
+                                    {label: '2', value: 2},
+                                    {label: '3', value: 3},
+                                ])}
                             </div>
                             <div className='cad-editor-row'>
-                                {this.GenerateCallField('Code', 'callCode', 1)}
+                                {this.GenerateCallField('Code', 'callCode', 1, this.state.code_picker)}
                                 {this.GenerateCallField('Primary Unit', 'callPrimary', 1)}
                             </div>
                             <div className='cad-editor-row'>
@@ -489,14 +510,6 @@ export default class CAD extends React.Component {
 
                                         return (
                                             <div key={key} className='cad-table-row' style={customRowStyle} onClick={async () => {
-                                                if (this.state.callID === call.id) {
-                                                    console.log('Before')
-                                                    console.log(this.state)
-                                                    this.clearCallState()
-                                                    console.log('After')
-                                                    console.log(this.state)
-                                                    return
-                                                }
                                                 await this.checkCallUpdate()
                                                 this.clearCallState()   
                                                 this.setState({
@@ -913,7 +926,70 @@ export default class CAD extends React.Component {
         this.updateData()
     }
 
-    GenerateCallField(placeholder, variable, flex) {
+    GenerateCallField(placeholder, variable, flex, options) {
+        if (options) {
+            const customStyle = {
+                singleValue: (provided, state) => ({
+                    ...provided,
+                    color: 'white'
+                }),
+                valueContainer: (provided, state) => ({
+                    ...provided,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    minHeight: 0,
+                }),
+                dropdownIndicator: (provided, state) => ({
+                    ...provided,
+                    paddingTop: 0,
+                    paddingBottom: 0
+                }),
+                indicatorSeparator: (provided, state) => ({
+                    ...provided,
+                    display: 'none'
+                }),
+                input: (provided, state) => ({
+                    ...provided,
+                    color: '#BCBCBC'
+                }),
+                placeholder: (provided, state) => ({
+                    ...provided,
+                    color: 'white'
+                }),
+                control: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: '#212026',
+                    outline: 'none',
+                    border: 0,
+                    boxShadow: 'none',
+                    minHeight: 0,
+                }),
+                menu: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: '#212026',
+                    outline: 'none',
+                    border: 'none',
+                }),
+                option: (provided, { data, isDisabled, isFocused, isSelected }) => ({
+                    ...provided,
+                    color: 'white',
+                    backgroundColor: isSelected ? '#34B3CE' : null,
+                    '&:hover': {
+                        backgroundColor: '#111015'
+                    }
+                }),
+            }
+            return (
+                <div className='cad-editor-cell'>
+                    <div>
+                        <p>{placeholder}</p>
+                    </div>
+                    <Select className='popup-call-select' styles={customStyle} value={this.state[variable]} placeholder={this.state[variable]} options={options} onChange={(selected) => {
+                        this.setState({[variable]: selected.value})
+                    }} />
+                </div>
+            )
+        }
         return (
             <div className='cad-editor-cell' style={{flex: flex}}>
                 <div>
@@ -925,5 +1001,4 @@ export default class CAD extends React.Component {
             </div>
         )
     }
-
 }
