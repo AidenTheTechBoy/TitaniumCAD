@@ -1,8 +1,10 @@
 import { faCar, faCog, faDesktop, faFire, faLaptop, faUser } from '@fortawesome/free-solid-svg-icons'
 
+import Config from '../Config'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Header from './Components/Header'
 import React from 'react'
+import axios from 'axios'
 
 export default class Dashboard extends React.Component {
    
@@ -11,6 +13,7 @@ export default class Dashboard extends React.Component {
         this.state = {
             width: 0,
             height: 0,
+            permissions: [],
             timedate: new Date().toLocaleString()
         }
         if (!localStorage.getItem('cookie')) {
@@ -24,16 +27,21 @@ export default class Dashboard extends React.Component {
         } else {
             this.setState({ width: window.innerWidth, height: window.innerHeight });
         }
-        
-        console.log(  Math.floor(this.state.width / 240) )
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         this.updateDimensions();
         window.addEventListener("resize", this.updateDimensions.bind(this))
         setInterval(() => {
             this.setState({timedate: new Date().toLocaleString()})
         }, 1000)
+
+        let req = await axios.post(Config.api + '/my-permissions', {
+            'cookie' : localStorage.getItem('cookie'),
+            'access_code': localStorage.getItem('access_code'),
+        })
+        this.setState({permissions: req.data})
+        console.log(req.data)
     }
 
     componentWillUnmount() {
@@ -56,48 +64,85 @@ export default class Dashboard extends React.Component {
                     </div>
                     <h1 className='page-header' style={{flex: 1, alignSelf: 'center'}}>Welcome to the panel, <br/>{localStorage.getItem('username')}</h1>
                 </div>
-                <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
-                    <h3 className='dashboard-message-header'>Server Message</h3>
-                    <p className='dashboard-message-body'>Welcome to Blazin Roleplay's offical CAD system. Support can be found in the Discord or on our website. Civilian permissions are automatic, but to get higher-level permissions in the CAD please contact a department supervisor. Please follow the rules, and have fun!</p>
-                </div>
-                <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '50px'}}>
-                    <div className='dashboard-item' onClick={() => window.location = '/civilians'}>
-                        <div className='dashboard-icon-container'>
-                            <FontAwesomeIcon className='dashboard-icon' icon={faUser} />
-                        </div>
-                        Civilian Manager
+                
+                {
+                    this.state.permissions.permission_civilian ?
+                    <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
+                        <h3 className='dashboard-message-header'>Server Message</h3>
+                        <p className='dashboard-message-body'>Welcome to Blazin Roleplay's offical CAD system. Support can be found in the Discord or on our website. Civilian permissions are automatic, but to get higher-level permissions in the CAD please contact a department supervisor. Please follow the rules, and have fun!</p>
                     </div>
-                    <div className='dashboard-item' onClick={() => window.location = '/dmv'}>
-                        <div className='dashboard-icon-container'>
-                            <FontAwesomeIcon className='dashboard-icon' icon={faCar} />
-                        </div>
-                        Department of Motor Vehicles
+                    :
+                    null
+                }
+
+                {
+                    this.state.permissions.permission_civilian ?
+                    <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '50px'}}>     
+                        {this.state.permissions.permission_civilian ? <div className='dashboard-item' onClick={() => window.location = '/civilians'}>
+                            <div className='dashboard-icon-container'>
+                                <FontAwesomeIcon className='dashboard-icon' icon={faUser} />
+                            </div>
+                            Civilian Manager
+                        </div> : null}
+
+                        {this.state.permissions.permission_civilian ? <div className='dashboard-item' onClick={() => window.location = '/dmv'}>
+                            <div className='dashboard-icon-container'>
+                                <FontAwesomeIcon className='dashboard-icon' icon={faCar} />
+                            </div>
+                            Department of Motor Vehicles
+                        </div> : null}
+
+                        {this.state.permissions.permission_civilian ? <div className='dashboard-item' onClick={() => window.location = '/atf'}>
+                            <div className='dashboard-icon-container'>
+                                <FontAwesomeIcon className='dashboard-icon' icon={faFire} />
+                            </div>
+                            Alcohol Tobacco and Firearms
+                        </div> : null}
+
+                        {
+                        (this.state.permissions.permission_police_mdt | this.state.permissions.permission_fire_mdt) ?
+                        <div className='dashboard-item'>
+                            <div className='dashboard-icon-container'>
+                                <FontAwesomeIcon className='dashboard-icon' icon={faLaptop} />
+                            </div>
+                            Mobile Data Terminal
+                        </div> : null}
+
+                        {this.state.permissions.permission_dispatch ? <div className='dashboard-item' onClick={() => window.location = '/cad'}>
+                            <div className='dashboard-icon-container'>
+                                <FontAwesomeIcon className='dashboard-icon' icon={faDesktop} />
+                            </div>
+                            Computer Aided Dispatch
+                        </div> : null}
+
+                        {
+                        (
+                            this.state.permissions.permission_manage_settings |
+                            this.state.permissions.permission_manage_servers |
+                            this.state.permissions.permission_manage_members |
+                            this.state.permissions.permission_manage_departments |
+                            this.state.permissions.permission_manage_codes
+                        ) ?
+                        <div className='dashboard-item' onClick={() => window.location = '/settings'}>
+                            <div className='dashboard-icon-container'>
+                                <FontAwesomeIcon className='dashboard-icon' icon={faCog} />
+                            </div>
+                            Manage Server
+                        </div> : null}
                     </div>
-                    <div className='dashboard-item' onClick={() => window.location = '/atf'}>
-                        <div className='dashboard-icon-container'>
-                            <FontAwesomeIcon className='dashboard-icon' icon={faFire} />
-                        </div>
-                        Alcohol Tobacco and Firearms
+                    :
+                    <div>
+                    <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
+                        <h3 className='dashboard-message-header'>No Permissions!</h3>
+                        <p className='dashboard-message-body'>
+                        You currently do not have any permissions in the CAD.
+                        This server is set to private, so you will need to be manually given the civilian permission by a system administrator.
+                        Please follow whatever process has been put in place by your community's management team.
+                        </p>
                     </div>
-                    <div className='dashboard-item'>
-                        <div className='dashboard-icon-container'>
-                            <FontAwesomeIcon className='dashboard-icon' icon={faLaptop} />
-                        </div>
-                        Mobile Data Terminal
                     </div>
-                    <div className='dashboard-item' onClick={() => window.location = '/cad'}>
-                        <div className='dashboard-icon-container'>
-                            <FontAwesomeIcon className='dashboard-icon' icon={faDesktop} />
-                        </div>
-                        Computer Aided Dispatch
-                    </div>
-                    <div className='dashboard-item' onClick={() => window.location = '/settings'}>
-                        <div className='dashboard-icon-container'>
-                            <FontAwesomeIcon className='dashboard-icon' icon={faCog} />
-                        </div>
-                        Manage Server
-                    </div>
-                </div>
+                }
+                
             </div>
         )
     }

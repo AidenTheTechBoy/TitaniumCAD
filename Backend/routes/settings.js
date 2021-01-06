@@ -6,6 +6,11 @@ const middleware = require('../middleware')
 const crypto = require('crypto-random-string')
 const { Permission } = require('../permissions')
 
+router.post('/my-permissions', middleware.LoggedInMember, middleware.ProvideCommunity, async(req, res) => {
+    const permissions = await Shared.CAD.query(`SELECT permission_manage_settings, permission_manage_servers, permission_manage_members, permission_manage_departments, permission_manage_codes, permission_civilian, permission_police_mdt, permission_fire_mdt, permission_dispatch FROM members WHERE id = ?`, [req.member])
+    res.status(200).json(permissions[0][0])
+})
+
 router.post('/settings/get', middleware.LoggedInMember, middleware.ProvideCommunity, Permission.ManageSettings, async(req, res) => {
     const communities = await Shared.CAD.query(`SELECT * FROM communities WHERE id = ?`, [req.community])
     res.status(200).json(communities[0][0])
