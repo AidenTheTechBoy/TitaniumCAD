@@ -454,19 +454,26 @@ export default class Settings extends React.Component {
         return <Item onClick={() => this.FlipPermission(member, member_index, permission)}>{icon} {label}</Item>
     }
 
-    FlipPermission(member, index, permission) {
-        axios.post(Config.api + '/settings/set-permission', {
-            cookie: localStorage.getItem('cookie'),
-            access_code: localStorage.getItem('access_code'),
-            id: member.id,
-            permission: permission,
-            enabled: !member[permission]
-        })
-        let members = this.state.members
-        members[index][permission] = !members[index][permission]
-        this.setState({
-            members: members
-        })
+    async FlipPermission(member, index, permission) {
+        try {
+            await axios.post(Config.api + '/settings/set-permission', {
+                cookie: localStorage.getItem('cookie'),
+                access_code: localStorage.getItem('access_code'),
+                id: member.id,
+                permission: permission,
+                enabled: !member[permission]
+            })
+            let members = this.state.members
+            members[index][permission] = !members[index][permission]
+            this.setState({
+                members: members
+            })
+        }
+        catch (err) {
+            if (err.response.data) {
+                Config.toastFailure(err.response.data)
+            }
+        }
     }
 
 

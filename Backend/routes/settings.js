@@ -183,6 +183,22 @@ router.post('/settings/set-permission', middleware.LoggedInMember, middleware.Pr
         return
     }
 
+    //Make Sure User Cannot Update Themself
+    if (id == req.member) {
+        res.status(403).send('You may not modify your own permissions!')
+        return
+    }
+
+    //Make Sure User is Not Owner
+    const checkOwner = await Shared.CAD.query(
+        `SELECT id FROM communities WHERE id = ? AND owner_member_id = ?`,
+        [req.community, id]
+    )
+    if (checkOwner[0].length) {
+        res.status(403).send('This user is immune to permission changes!')
+        return
+    }
+
     if (enabled) {
         await Shared.CAD.query(`UPDATE members SET ${permission} = 1 WHERE id = ? AND community_id = ?`, [id, req.community])
     } else {
