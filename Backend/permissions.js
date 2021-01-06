@@ -45,30 +45,11 @@ const Dispatch = async function (req, res, next) {
 }
 
 async function Middleware (req, res, next, permission) {
-    const authorized = await CheckPermissions(req.community, req.member, permission)
+    const authorized = await PermissionsArray(req, res, [permission])
     if (authorized) {
         return true
     }
     res.status(403).send('You do not have permission to perform this action.')
-    return false
-}
-
-async function CheckPermissions(community_id, member_id, permission) {
-
-    //Check Owner
-    const checkOwner = await Shared.CAD.query(
-        `SELECT id FROM communities WHERE id = ? AND owner_member_id = ?`,
-        [community_id, member_id]
-    )
-    if (checkOwner[0].length) return true
-
-    //Check Permission
-    const checkPerms = await Shared.CAD.query(
-        `SELECT id FROM members WHERE id = ? AND permission_${permission.toLowerCase()} = 1`,
-        [community_id, member_id]
-    )
-    if (checkPerms[0].length) return true
-
     return false
 }
 

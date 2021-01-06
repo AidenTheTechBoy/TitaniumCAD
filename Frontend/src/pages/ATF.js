@@ -153,6 +153,7 @@ export default class ATF extends React.Component {
                                                             'civilian_id' : this.state.civilian_id,
                                                             'firearm_id': weapon.id
                                                         })
+                                                        Config.toastSuccess('Firearm registration deleted.')
                                                         this.UpdateData()
                                                         close()
                                                     }
@@ -180,6 +181,7 @@ export default class ATF extends React.Component {
                                                                 'name': this.state.wep_name,
                                                                 'registration': this.state.wep_registration,
                                                             })
+                                                            Config.toastSuccess('Firearm registration modified.')
                                                             this.UpdateData()
                                                             close()
                                                         }
@@ -250,6 +252,7 @@ export default class ATF extends React.Component {
                                             'name': this.state.wep_name,
                                             'registration': this.state.wep_registration,
                                         })
+                                        Config.toastSuccess('Firearm successfully registered.')
                                         this.UpdateData()
                                         close()
                                     }

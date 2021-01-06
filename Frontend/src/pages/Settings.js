@@ -468,6 +468,7 @@ export default class Settings extends React.Component {
             this.setState({
                 members: members
             })
+            Config.toastSuccess('Permission added to user.')
         }
         catch (err) {
             if (err.response.data) {

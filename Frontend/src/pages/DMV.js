@@ -165,6 +165,7 @@ export default class DMV extends React.Component {
                                                             'civilian_id' : this.state.civilian_id,
                                                             'vehicle_id': vehicle.id,
                                                         })
+                                                        Config.toastSuccess('Vehicle registration deleted.')
                                                         this.UpdateData()
                                                         close()
                                                     }
@@ -206,6 +207,7 @@ export default class DMV extends React.Component {
                                                                 'registration': this.state.veh_registration,
                                                                 'insurance': this.state.veh_insurance
                                                             })
+                                                            Config.toastSuccess('Vehicle registration successfully edited.')
                                                             this.UpdateData()
                                                             close()
                                                         }
@@ -291,6 +293,7 @@ export default class DMV extends React.Component {
                                             'registration': this.state.veh_registration,
                                             'insurance': this.state.veh_insurance
                                         })
+                                        Config.toastSuccess('Vehicle successfully registered.')
                                         this.UpdateData()
                                         close()
                                     }

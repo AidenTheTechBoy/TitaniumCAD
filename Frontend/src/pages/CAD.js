@@ -395,6 +395,7 @@ export default class CAD extends React.Component {
                                 <div className='cad-window-header-button-group'>
                                     <div className='cad-window-header-button' onClick={async () => {
                                         if (this.state.callID) {
+                                            Config.toastSuccess('Call editor cleared. Type some information and press "create call" to create a new call.', 5000)
                                             this.clearCallState()
                                             return
                                         }
@@ -412,6 +413,7 @@ export default class CAD extends React.Component {
                                             address: this.state.callLocation,
                                             postal: this.state.callPostal,
                                         })
+                                        Config.toastSuccess('Call successfully created!')
                                         this.updateData()
                                         this.clearCallState()
                                     }}>{this.state.callID ? 'New Call' : 'Create Call'}</div>
@@ -424,10 +426,12 @@ export default class CAD extends React.Component {
                                                 server_id: server_id,
                                                 call_id: this.state.callID,
                                             })
+                                            Config.toastSuccess('Call successfully deleted.')
                                             this.updateData()
                                             this.clearCallState()
                                             return
                                         }
+                                        Config.toastSuccess('Call editor cleared. Type some information and press "create call" to create a new call.', 5000)
                                         this.clearCallState()
                                         
                                     }}>Delete Call</div>

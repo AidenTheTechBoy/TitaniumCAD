@@ -118,6 +118,7 @@ export default class Civilians extends React.Component {
                                                             'access_code': localStorage.getItem('access_code'),
                                                             'civilian_id': civilian.id,
                                                         })
+                                                        Config.toastSuccess('Civilian deleted.')
                                                         this.UpdateData()
                                                         close()
                                                     }
@@ -166,6 +167,7 @@ export default class Civilians extends React.Component {
                                                                 'license_expiration': this.state.civ_license_expiration,
                                                                 'license_status': this.state.civ_license_status,
                                                             })
+                                                            Config.toastSuccess('Civilian successfully edited.')
                                                             this.UpdateData()
                                                             close()
                                                         }
@@ -266,6 +268,7 @@ export default class Civilians extends React.Component {
                                             'license_expiration': this.state.civ_license_expiration,
                                             'license_status': this.state.civ_license_status,
                                         })
+                                        Config.toastSuccess('Civilian successfully created!')
                                         this.UpdateData()
                                         close()
                                     }
