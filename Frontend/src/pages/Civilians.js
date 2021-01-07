@@ -139,9 +139,9 @@ export default class Civilians extends React.Component {
                                                     </div>
                                                     <div className='popup-header'>License</div>
                                                     <div className='popup-row'>
-                                                        {this.PopupField('License Type', null, 'civ_license_type')}
-                                                        {this.PopupField('License Expiration', null, 'civ_license_expiration')}
-                                                        {this.PopupField('License Status', null, 'civ_license_status')}
+                                                        {this.PopupField('License Type', civilian.license_type, 'civ_license_type')}
+                                                        {this.PopupField('License Expiration', civilian.license_expiration, 'civ_license_expiration')}
+                                                        {this.PopupField('License Status', civilian.license_status, 'civ_license_status')}
                                                     </div>
                                                 </div>
                                                 <p className='popup-error-message'>{this.state.error}</p>
