@@ -22,6 +22,35 @@ class Shared {
         return res[0].length > 0
     }
 
+    /**
+     * Validates Data Entry
+     * @param {Array} entries 
+     * @param {Array<Array>} valid 
+     * @returns {boolean} Returns true if all entries are valid.
+     */
+    static ValidateMultiple(entries, valid) {
+        for (const i in entries) {
+            const isValid = this.ValidateEntry(entries[i], valid[i])
+            if (!isValid) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * Validates Data Entry
+     * @param {string | number} entry 
+     * @param {Array} valid 
+     * @returns {boolean} Returns true if entry is valid.
+     */
+    static ValidateEntry(entry, valid) {
+        if (valid.includes(entry)) {
+            return true
+        }
+        return false
+    }
+
 }
 
 module.exports = Shared

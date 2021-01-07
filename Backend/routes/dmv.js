@@ -4,6 +4,7 @@ const mysql = require('mysql2')
 const authentication = require('./authentication')
 const middleware = require('../middleware')
 const { Permission } = require('../permissions')
+const Shared = require('../shared')
 
 
 
@@ -34,7 +35,13 @@ router.post('/dmv/add', middleware.LoggedInMember, middleware.ProvideCommunity, 
         return
     }
 
-    //TODO: Verify valid color/make/model/year/registration/insurance 
+    if (!Shared.ValidateMultiple( [registration, insurance], [
+        ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'],
+        ['VALID', 'EXPIRED', 'UNINSURED'] 
+    ])) {
+        res.status(400).send('Entry failed data validation.')
+        return
+    }
     
     CAD.query(
         `INSERT INTO vehicles (community_id, civilian_id, plate, color, make, model, year, registration, insurance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -63,7 +70,17 @@ router.post('/dmv/edit', middleware.LoggedInMember, middleware.ProvideCommunity,
     for (let key in ValuesToChange) {
         if (ValuesToChange[key]) {
             
-            //TODO: Validate Values
+            if (key === 'registration') {
+                if (!Shared.ValidateEntry(ValuesToChange[key], ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'])) {
+                    continue
+                }
+            }
+
+            if (key === 'insurance') {
+                if (!Shared.ValidateEntry(ValuesToChange[key], ['VALID', 'EXPIRED', 'UNINSURED'])) {
+                    continue
+                }
+            }
 
             CAD.query(
                 `UPDATE vehicles SET ${key} = ? WHERE id = ? AND community_id = ? AND civilian_id = ?`,

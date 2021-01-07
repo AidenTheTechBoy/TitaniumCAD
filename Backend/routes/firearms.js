@@ -4,6 +4,7 @@ const mysql = require('mysql2')
 const authentication = require('./authentication')
 const middleware = require('../middleware')
 const { Permission } = require('../permissions')
+const Shared = require('../shared')
 
 
 
@@ -29,7 +30,10 @@ router.post('/firearms/add', middleware.LoggedInMember, middleware.ProvideCommun
         return
     }
 
-    //TODO: Verify valid name and registration
+    if (!Shared.ValidateEntry(registration, ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'])) {
+        res.status(400).send('Entry failed data validation.')
+        return
+    }
     
     CAD.query(
         `INSERT INTO firearms (community_id, civilian_id, name, registration) VALUES (?, ?, ?, ?)`, 
@@ -53,7 +57,11 @@ router.post('/firearms/edit', middleware.LoggedInMember, middleware.ProvideCommu
     for (let key in ValuesToChange) {
         if (ValuesToChange[key]) {
             
-            //TODO: Validate Values
+            if (key === 'registration') {
+                if (!Shared.ValidateEntry(ValuesToChange[key], ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'])) {
+                    continue
+                }
+            }
 
             CAD.query(
                 `UPDATE firearms SET ${key} = ? WHERE id = ? AND community_id = ? AND civilian_id = ?`,
