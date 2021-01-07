@@ -28,6 +28,39 @@ router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, 
     }
 })
 
+router.post('/remove-unit', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
+    const id = req.body.id
+    await CAD.query(`DELETE FROM units WHERE member_id = ? AND server_id = ?`, [id, req.server])
+    res.status(200).send('Unit removed from CAD!')
+})
+
+router.post('/unit-override', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
+    const member_id = req.body.member_id
+
+    const callsign = req.body.callsign
+    const name = req.body.name
+    const location = req.body.location
+    
+    if (!member_id) {
+        res.status(400).send('No unit provided!')
+        return
+    }
+
+    if (callsign) {
+        await CAD.query(`UPDATE units SET callsign = ? WHERE member_id = ? AND server_id = ?`, [callsign, member_id, req.server])
+    }
+
+    if (name) {
+        await CAD.query(`UPDATE units SET name = ? WHERE member_id = ? AND server_id = ?`, [name, member_id, req.server])
+    }
+
+    if (location) {
+        await CAD.query(`UPDATE units SET location = ? WHERE member_id = ? AND server_id = ?`, [location, member_id, req.server])
+    }
+    
+    res.status(200).send('Unit manually updated!')
+})
+
 router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
 
     const member_id = req.body.member_id

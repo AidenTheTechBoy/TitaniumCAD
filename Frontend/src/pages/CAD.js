@@ -599,16 +599,43 @@ export default class CAD extends React.Component {
                     </Submenu>
 
                     <Submenu label="Unit Override">
-                        <Item onClick={() => {}}>
+                        <Item onClick={async () => {
+                            await axios.post(Config.api + '/cad/unit-override', {
+                                'cookie' : localStorage.getItem('cookie'),
+                                'server_id': this.state.server_id,
+                                'member_id': this.state.context_unit_id,
+                                'callsign': window.prompt("Enter the callsign you would like to override the current one with.")
+                            })
+                            this.updateData()
+                            Config.toastSuccess('Unit override request sent to server!')
+                        }}>
                             Change Callsign
                         </Item>
-                        <Item onClick={() => {}}>
+                        <Item onClick={async () => {
+                            await axios.post(Config.api + '/cad/unit-override', {
+                                'cookie' : localStorage.getItem('cookie'),
+                                'server_id': this.state.server_id,
+                                'member_id': this.state.context_unit_id,
+                                'name': window.prompt("Enter a new name for this unit.")
+                            })
+                            this.updateData()
+                            Config.toastSuccess('Unit override request sent to server!')
+                        }}>
                             Change Name
                         </Item>
-                        <Item onClick={() => {}}>
+                        <Item onClick={async () => {
+                            await axios.post(Config.api + '/cad/unit-override', {
+                                'cookie' : localStorage.getItem('cookie'),
+                                'server_id': this.state.server_id,
+                                'member_id': this.state.context_unit_id,
+                                'location': window.prompt("Enter the location you would like to override the current one with.")
+                            })
+                            this.updateData()
+                            Config.toastSuccess('Unit override request sent to server!')
+                        }}>
                             Change Location
                         </Item>
-                        <Item className='context-red' style={{color: 'red'}} onClick={() => {}}>
+                        <Item className='context-red' style={{color: 'red'}} onClick={() => this.RemoveUnit()}>
                             Remove Unit
                         </Item>
                     </Submenu>
@@ -922,6 +949,15 @@ export default class CAD extends React.Component {
             'server_id': this.state.server_id,
             'member_id': this.state.context_unit_id,
             'status': status
+        })
+        this.updateData()
+    }
+
+    async RemoveUnit() {
+        await axios.post(Config.api + '/cad/remove-unit', {
+            'cookie' : localStorage.getItem('cookie'),
+            'server_id': this.state.server_id,
+            'id': this.state.context_unit_id
         })
         this.updateData()
     }
