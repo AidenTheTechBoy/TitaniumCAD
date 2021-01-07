@@ -136,7 +136,7 @@ export default class CAD extends React.Component {
 
         //Get New CAD Data
         setInterval(async () => {
-            if (Date.now() - this.state.lastRequestCompletion > 5000) {
+            if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
                 await this.updateData().then(() => {
                     this.state.lastRequestCompletion = Date.now()
                 })
