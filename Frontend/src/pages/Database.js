@@ -212,6 +212,7 @@ export default class Database extends React.Component {
                                                 <div className='database-field-s'>Plate: <b>{vehicle.plate}</b></div>
                                                 <div className='database-field-s'>Make: <b>{vehicle.make}</b></div>
                                                 <div className='database-field-s'>Model: <b>{vehicle.model}</b></div>
+                                                <div className='database-field-s'>Color: <b>{vehicle.color}</b></div>
 
                                                 <div className='database-field-h'>Vehicle Status</div>
                                                 <div className='database-field-s'>Registration: <b>{vehicle.registration}</b></div>
