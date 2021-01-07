@@ -180,7 +180,7 @@ export default class DMV extends React.Component {
                                                         {this.PopupField('Registration', vehicle.registration, 'veh_registration', [
                                                             {value: 'VALID', label: 'VALID'},
                                                             {value: 'EXPIRED', label: 'EXPIRED'},
-                                                            {value: 'STOLEN', label: 'STOLEN'},
+                                                            {value: 'STOLEN', label: 'STOLEN (out of your possession)'},
                                                             {value: 'UNREGISTERED', label: 'UNREGISTERED'},
                                                         ])}
                                                         {this.PopupField('Insurance', vehicle.insurance, 'veh_insurance', [
