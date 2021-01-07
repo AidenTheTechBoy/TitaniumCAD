@@ -12,6 +12,7 @@
     "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "react": "^17.0.1",
+    "react-collapsible": "^2.8.1",
     "react-contexify": "^5.0.0",
     "react-dom": "^17.0.1",
     "react-draggable": "^4.4.3",

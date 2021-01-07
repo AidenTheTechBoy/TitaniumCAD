@@ -349,7 +349,18 @@ router.post('/lookup-vehicle', middleware.LoggedInMember, middleware.ProvideComm
         query += args.join(' AND ') + `)`
 
         let results = await CAD.query(query, [req.community])
-        res.status(200).json(results[0])
+        results = results[0]
+        
+        let finishedResults = []
+        for (const i in results) {
+            const civilian = await CAD.query(`SELECT * FROM civilians WHERE id = ?`, [results[i].civilian_id])
+            if (civilian[0][0]) {
+                results[i].civilian = civilian[0][0]
+                finishedResults[finishedResults.length] = results[i]
+            }
+        }
+
+        res.status(200).json(finishedResults)
     }
 })
 

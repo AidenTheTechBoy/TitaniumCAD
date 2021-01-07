@@ -7,12 +7,12 @@ html, body {
     flex: 1;
     background-color: #111015;
     font-family: 'Ruda', sans-serif;
-    height: 100%; padding: 0; margin: 0;
+    padding: 0; margin: 0;
 }
 
 html, body, #app, #app>div {
     height: 100%
-  }
+}
 
 /* General Button Overrides */
 button {
@@ -669,19 +669,40 @@ button {
 .database-search:hover {
     background-color: #6fdcf5;
 }
-.database-field {
+.database-field-heading {
+    background-color: #212026;
+    font-size: 24px;
+    text-transform: uppercase;
+    color: #34B3CE;
+    padding: 20px;
+    margin: 20px;
+    margin-bottom: 0px;
+    cursor: pointer;
+}
+.database-field { 
     background-color: #212026;
     color: white;
     padding: 20px;
     margin: 20px;
+    margin-top: 0px;
+    padding-top: 0px;
+}
+.database-top-border {
+    border-top: #404044 solid 1.5px;
 }
 .database-field-h {
-    font-size: 20px;
+    font-size: 19px;
     text-transform: uppercase;
+    color: #34B3CE;
+    padding-top: 20px;
 }
 .database-field-s {
     color: #BCBCBC;
     text-transform: uppercase;
+}
+.database-field-s > b {
+    color: white;
+    font-weight: 100;
 }
 
 /* Notepad */
