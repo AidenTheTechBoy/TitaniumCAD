@@ -1,7 +1,8 @@
 import Collapsible from 'react-collapsible';
 import Config from '../Config';
 import React from 'react'
-import ReactList from 'react-list';
+import ReactList from 'react-list'
+import { Scrollbars } from 'react-custom-scrollbars'
 import axios from 'axios'
 
 export default class Database extends React.Component {
@@ -26,7 +27,7 @@ export default class Database extends React.Component {
 
     render() {
         return (
-            <div style={{maxWidth: '1000px', margin: '0 auto', paddingBottom: 80}}>
+            <Scrollbars style={{maxWidth: '1000px', margin: '0 auto', paddingBottom: 80, minHeight: 400}}>
 
                 {/* Page Header */}
                 <h1 className='database-header'>{this.state.person ? 'PERSON SEARCH' : 'VEHICLE SEARCH'}</h1>
@@ -250,7 +251,7 @@ export default class Database extends React.Component {
                     }
                 </div>
                 
-            </div>
+            </Scrollbars>
         )
     }
 }
