@@ -178,6 +178,23 @@ export default class Database extends React.Component {
                                                 <div className='database-field-s'>License Type: <b>{person.license_type}</b></div>
                                                 <div className='database-field-s'>License Expiration: <b>{person.license_expiration}</b></div>
                                                 <div className='database-field-s'>License Status: <b>{person.license_status}</b></div>
+                                                {console.log(person)}
+
+                                                <ReactList
+                                                itemRenderer={(index, key) => {
+                                                    let weapon = person.weapons[index]
+                                                    return (
+                                                        <div>
+                                                            <div className='database-field-h' style={{color: 'red'}}>Weapon #{index+1}</div>
+                                                            <div className='database-field-s'>Name: <b>{weapon.name}</b></div>
+                                                            <div className='database-field-s'>Registration: <b>{weapon.registration}</b></div>
+                                                        </div>
+                                                    )
+                                                }}
+                                                length={person.weapons.length}
+                                                type='uniform'
+                                            />
+
                                             </div>
                                         </Collapsible>
                                     )
