@@ -119,8 +119,13 @@ router.post('/login', ratelimits.loginLimit, async (req, res) => {
             username = user[0][0].username
         }
         
+        if (access_code) {
+            res.status(200).json({cookie: cookie, expiration: expiration, username: username, community: community_id})
+        } else {
+            res.status(200).json({cookie: cookie, expiration: expiration, username: username})
+        }
 
-        res.status(200).json({cookie: cookie, expiration: expiration, username: username})
+        
         return
     }
 

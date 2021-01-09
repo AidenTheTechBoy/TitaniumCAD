@@ -42,6 +42,7 @@ CREATE TABLE `Communities` (
     `plan` INT NOT NULL,
     `status` VARCHAR(255),
     `public` BOOLEAN,
+    `dashboard_message` TEXT,
     `webhook_global` VARCHAR(100),
     `webhook_calls` VARCHAR(100),
     `code_available` VARCHAR(15),

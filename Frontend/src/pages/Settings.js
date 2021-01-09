@@ -38,6 +38,7 @@ export default class Settings extends React.Component {
 
         this.setState({
             global_public: community.data.public,
+            global_dashboard_message: community.data.dashboard_message,
             global_webhook_main: community.data.webhook_global,
             global_webhook_911: community.data.webhook_calls,
             global_code_available: community.data.code_available,
@@ -134,6 +135,8 @@ export default class Settings extends React.Component {
         return (
             <div style={{maxWidth: '1000px', margin: '0 auto', paddingTop: 20, paddingBottom: 20}}>
                 <div>
+
+                    <hr color='#212026' style={{marginTop: 40, marginBottom: 20}} />
                     <div style={{display: 'flex', justifyContent: 'space-between', alignContent: 'center'}}>
                         <div className='popup-input-container'>
                             <div className='popup-input-prompt' style={{display: 'flex'}}>
@@ -145,6 +148,34 @@ export default class Settings extends React.Component {
                             <p className='popup-input-prompt-sub'>If this setting is enabled, new members will automatically be given civilian permissions upon creating account. Otherwise, they will require manual approval in order to access normal civilian features such as vehicle and firearm registration.</p>
                         </div>
                     </div>
+
+                    <hr color='#212026' style={{marginTop: 40, marginBottom: 20}} />
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignContent: 'center'}}>
+                        <div className='popup-input-container'>
+                            <div className='popup-input-prompt' style={{display: 'flex'}}>
+                                <p>Server Icon</p>
+                                <input style={{marginLeft: 10, color: 'white'}} type="file" onChange={async (event) => {
+                                    const formData = new FormData()
+                                    formData.append( 
+                                        'server_icon', 
+                                        event.target.files[0], 
+                                        event.target.files[0].name 
+                                    )
+                                    await axios.post(Config.api + '/upload/server-icon', formData, {
+                                        headers: {
+                                            'titanium-cookie': localStorage.getItem('cookie'),
+                                            'titanium-access-code': localStorage.getItem('access_code')
+                                        }
+                                    })
+                                    Config.toastSuccess('Community icon has been updated!')
+                                }} />
+                            </div>
+                            <p className='popup-input-prompt-sub'>Set the icon for your community. This will be reflected on pages such as the login page and the dashboard page. This is typically just a transparent server icon. The ideal format is a 512x512 png.</p>
+                        </div>
+                    </div>
+
+                    <hr color='#212026' style={{marginTop: 40, marginBottom: 20}} />
+                    {this.GlobalField('Dashboard Message', 'global_dashboard_message')}
                     <hr color='#212026' style={{marginTop: 40, marginBottom: 20}} />
                     {this.GlobalField('Discord Global Webhook', 'global_webhook_main')}
                     {this.GlobalField('Discord 911 Webhook', 'global_webhook_911')}
@@ -164,6 +195,7 @@ export default class Settings extends React.Component {
                         cookie: localStorage.getItem('cookie'),
                         access_code: localStorage.getItem('access_code'),
                         public: this.state.global_public,
+                        dashboard_message: this.state.global_dashboard_message,
                         webhook_global: this.state.global_webhook_main,
                         webhook_calls: this.state.global_webhook_911,
                         code_available: this.state.global_code_available,

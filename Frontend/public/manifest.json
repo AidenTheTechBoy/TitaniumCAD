@@ -16,11 +16,6 @@
         "src": "background.jpg",
         "type": "image/png",
         "sizes": "3006x1993"
-    },
-    {
-        "src": "example-icon.png",
-        "type": "image/png",
-        "sizes": "1000x1000"
     }
   ],
   "start_url": ".",

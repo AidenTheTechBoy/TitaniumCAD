@@ -1,18 +1,20 @@
 require('dotenv').config()
 
+const rateLimit = require('express-rate-limit')
 const bodyParser = require('body-parser')
 const express = require('express')
 const cors = require('cors')
 const app = express()
-app.use(cors())
 
-const rateLimit = require('express-rate-limit')
+app.use('/static', express.static(__dirname.replace(/\\/g, '/') + `/routes/public`))
 
 app.use(bodyParser.json({
     verify: (req, res, buf) => {
         req.rawBody = buf
     }
 }))
+
+app.use(cors())
 
 // 1000 req / 5 min
 app.use("/", rateLimit({
@@ -64,6 +66,9 @@ app.use('/payments', paymentRoutes)
 
 const { apiRoutes } = require('./routes/api')
 app.use('/api', apiRoutes)
+
+const { uploadRoutes } = require('./routes/upload')
+app.use('/upload', uploadRoutes)
 
 // var pidusage = require('pidusage')
 // setInterval(() => {

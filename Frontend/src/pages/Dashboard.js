@@ -41,7 +41,13 @@ export default class Dashboard extends React.Component {
             'access_code': localStorage.getItem('access_code'),
         })
         this.setState({permissions: req.data})
-        console.log(req.data)
+        
+        let req2 = await axios.post(Config.api + '/dashboard', {
+            'cookie' : localStorage.getItem('cookie'),
+            'access_code': localStorage.getItem('access_code'),
+        })
+        this.setState({settings: req2.data})
+
     }
 
     componentWillUnmount() {
@@ -55,7 +61,7 @@ export default class Dashboard extends React.Component {
                 <div className='dashboard-container'>
                     <div className='dashboard-server'>
                         <div style={{display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
-                            <img className='icon-lg' src='example-icon.png' alt='Server Icon.' />
+                            <img className='icon-lg' src={`${Config.api}/static/img/community-${localStorage.getItem('community_id')}.png`} alt='Server Icon.' />
                             <div style={{marginLeft: '15px', alignSelf: 'center', justifySelf: 'center'}}>
                                 <h2 className='header-large'>{localStorage.getItem('server_name')}</h2>
                                 <h3 className='dashboard-date'>{this.state.timedate}</h3>
@@ -69,7 +75,7 @@ export default class Dashboard extends React.Component {
                     this.state.permissions.permission_civilian ?
                     <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
                         <h3 className='dashboard-message-header'>Server Message</h3>
-                        <p className='dashboard-message-body'>Welcome to Blazin Roleplay's offical CAD system. Support can be found in the Discord or on our website. Civilian permissions are automatic, but to get higher-level permissions in the CAD please contact a department supervisor. Please follow the rules, and have fun!</p>
+                        <p className='dashboard-message-body'>{this.state.settings ? this.state.settings.dashboard_message : 'Loading...'}</p>
                     </div>
                     :
                     null

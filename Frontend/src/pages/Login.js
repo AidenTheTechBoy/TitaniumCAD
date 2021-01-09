@@ -74,6 +74,7 @@ export default class Login extends React.Component {
                 localStorage.setItem('cookie', req.data.cookie)
                 localStorage.setItem('expiration', req.data.expiration)
                 localStorage.setItem('username', req.data.username)
+                localStorage.setItem('community_id', req.data.community)
                 window.location.pathname = '/dashboard'
             }
         }
@@ -92,9 +93,12 @@ export default class Login extends React.Component {
             })
             if (req.data[0]) {
                 localStorage.setItem('server_name', req.data[0].name)
-                this.setState({server_name: req.data[0].name})
                 localStorage.setItem('access_code', req.data[0].access_code)
-                this.setState({access_code: req.data[0].access_code})
+                this.setState({
+                    server_name: req.data[0].name,
+                    access_code: req.data[0].access_code,
+                    community_id: req.data[0].id
+                })
             } else {
                 this.setState({access_message: 'Community could not be found.'})
             }
@@ -141,7 +145,7 @@ export default class Login extends React.Component {
                 {/* Login Form */}
                 <div className='login-form'>
 
-                    <img className='icon-lg' src='example-icon.png' alt='Titanium CAD logo.' />
+                    <img className='icon-lg' src={`${Config.api}/static/img/community-${this.state.community_id}.png`} alt='Titanium CAD logo.' />
 
                     <h1 className='login-header'>{this.state.server_name}</h1>
 

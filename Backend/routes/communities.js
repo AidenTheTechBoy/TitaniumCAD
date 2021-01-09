@@ -15,7 +15,7 @@ const CAD = mysql.createConnection({
 }).promise()
 
 router.post('/communities/check', async(req, res) => {
-    const communities = await CAD.query(`SELECT name, access_code, status FROM communities WHERE access_code = ?`, [req.body.access_code])
+    const communities = await CAD.query(`SELECT id, name, access_code, status FROM communities WHERE access_code = ?`, [req.body.access_code])
     if (communities[0]) {
         res.status(200).json(communities[0])
         return

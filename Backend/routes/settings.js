@@ -11,6 +11,11 @@ router.post('/my-permissions', middleware.LoggedInMember, middleware.ProvideComm
     res.status(200).json(permissions[0][0])
 })
 
+router.post('/dashboard', middleware.LoggedInMember, middleware.ProvideCommunity, async(req, res) => {
+    const settings = await Shared.CAD.query(`SELECT dashboard_message FROM communities WHERE id = ?`, [req.community])
+    res.status(200).json(settings[0][0])
+})
+
 router.post('/settings/get', middleware.LoggedInMember, middleware.ProvideCommunity, Permission.ManageSettings, async(req, res) => {
     const communities = await Shared.CAD.query(`SELECT * FROM communities WHERE id = ?`, [req.community])
     res.status(200).json(communities[0][0])
@@ -19,6 +24,7 @@ router.post('/settings/get', middleware.LoggedInMember, middleware.ProvideCommun
 router.post('/settings/set', middleware.LoggedInMember, middleware.ProvideCommunity, Permission.ManageSettings, async(req, res) => {
     const ValuesToChange = {
         'public': req.body.public,
+        'dashboard_message': req.body.dashboard_message,
         'webhook_global': req.body.webhook_global,
         'webhook_calls': req.body.webhook_calls,
         'code_available': req.body.code_available,
