@@ -26,16 +26,16 @@ app.use(bodyParser.json({
 app.use(cors())
 
 // 1000 req / 5 min
-// app.use("/", rateLimit({
-//     windowMs: 5 * 60 * 1000,
-//     max: 1000
-// }))
+app.use("/", rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 1000
+}))
 
 // 10000 req / 1 Day
-// app.use("/", rateLimit({
-//     windowMs: 24 * 60 * 60 * 1000,
-//     max: 10000
-// }))
+app.use("/", rateLimit({
+    windowMs: 24 * 60 * 60 * 1000,
+    max: 10000
+}))
 
 let num = 1
 app.use("/", async function (req, res, next) {
