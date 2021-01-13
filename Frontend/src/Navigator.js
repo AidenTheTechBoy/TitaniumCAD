@@ -15,6 +15,7 @@ import DMV from "./pages/DMV";
 import Dashboard from "./pages/Dashboard";
 import Database from './pages/Database'
 import Login from "./pages/Login";
+import MDT from './pages/MDT';
 import MDashboard from "./pages/ManagerDashboard";
 import MLogin from './pages/ManagerLogin'
 import React from "react";
@@ -61,6 +62,9 @@ export default function Navigator() {
                     </Route>
                     <Route path="/cad">
                         <CAD />
+                    </Route>
+                    <Route path="/mdt">
+                        <MDT />
                     </Route>
                     <Route path="/settings">
                         <Settings />

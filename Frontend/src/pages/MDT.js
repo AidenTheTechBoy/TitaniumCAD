@@ -8,17 +8,19 @@ import Config from '../Config'
 import Database from './Database';
 import Draggable from 'react-draggable'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Header from './Components/Header'
 import Popout from 'react-popout'
 import React from 'react'
 import ReactList from 'react-list'
 import Select from 'react-select'
 import axios from 'axios'
 
-export default class CAD extends React.Component {
+export default class MDT extends React.Component {
    
     constructor(props) {
         super(props)
         this.state = {
+            registered: false,
             servers: [],
             units: [],
             calls: [],
@@ -44,6 +46,8 @@ export default class CAD extends React.Component {
     }
 
     async updateData() {
+        this.UpdateSelf()
+        
         if (!this.state.server_id) {
             return
         }
@@ -70,6 +74,22 @@ export default class CAD extends React.Component {
             lastRequestCompletion: Date.now()
         })
 
+    }
+
+    async UpdateSelf() {
+        let res = await axios.post(Config.api + '/cad/my-status', {
+            'cookie' : localStorage.getItem('cookie'),
+            'server_id': this.state.server_id,
+        })
+        this.setState({
+            'member_id': res.data.member_id,
+            'current_call': res.data.current_call,
+            'callsign': res.data.callsign,
+            'name': res.data.name,
+            'location': res.data.location,
+            'status': res.data.status
+        })
+        console.log(res.data)
     }
 
     async checkCallUpdate() {
@@ -160,7 +180,19 @@ export default class CAD extends React.Component {
         this.setState({servers: serverTemp})
     }
 
+    async SelfStatus(status) {
+        await axios.post(Config.api + '/cad/self-status', {
+            cookie: localStorage.getItem('cookie'),
+            access_code: localStorage.getItem('access_code'),
+            server_id: this.state.server_id,
+            status: status
+        })
+        this.updateData()
+        Config.toastSuccess('Your status has been updated.')
+    }
+
     render() {
+
         //Server Selector Style
         const serverSelectorStyle = {
             singleValue: (provided, state) => ({
@@ -189,6 +221,93 @@ export default class CAD extends React.Component {
                 }
             }),
         }
+
+        if (!this.state.server_id || !this.state.registered) {
+            return (
+                <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+                
+                    <Header back='/dashboard' />
+
+                    <div className='login-form'>
+
+                        {/* Server Selector */}
+                        <Select className='cad-element mdt-selector' styles={serverSelectorStyle} placeholder='Select Server' options={this.state.servers} onChange={async (selected) => {
+                            this.setState({'server_id': selected.value})
+                        }} />
+
+                        <h1 className='login-header' style={{marginTop: 40}}>Register New Unit</h1>
+
+                        {/* Callsign */}
+                        <div className='login-input-group'>
+                            <label className='login-input-prompt'>Callsign:</label>
+                            <input type='text' name='callsign' htmlFor='callsign' className='login-input' onChange={(e) => {
+                                this.setState({callsign: e.target.value})
+                            }}/>
+                        </div>
+
+                        {/* Name */}
+                        <div className='login-input-group'>
+                            <label className='login-input-prompt'>Name:</label>
+                            <input type='text' name='name' htmlFor='name' className='login-input' onChange={(e) => {
+                                this.setState({name: e.target.value})
+                            }}/>
+                        </div>
+
+                        {/* In-Game ID */}
+                        <div className='login-input-group'>
+                            <label className='login-input-prompt'>In-Game ID:</label>
+                            <input type='number' name='name' htmlFor='name' className='login-input' onChange={async (e) => {
+                                this.setState({ingame_id: e.target.value})
+                            }}/>
+                        </div>
+
+                        <div className='login-button' onClick={async () => {
+                            try {
+                                await axios.post(Config.api + '/cad/add-unit', {
+                                    cookie: localStorage.getItem('cookie'),
+                                    access_code: localStorage.getItem('access_code'),
+                                    server_id: this.state.server_id,
+                                    ingame_id: this.state.ingame_id,
+                                    name: this.state.name,
+                                    callsign: this.state.callsign
+                                })
+                                this.setState({registered: true})
+                                Config.toastSuccess('Your unit has been registered in the MDT!', 5000)
+                                this.updateData()
+                            }
+                            catch (err) {
+                                console.log(err)
+                                if (err.response && err.response.data) {
+                                    Config.toastFailure(err.response.data)
+                                }
+                            }
+                        }}>Register</div>
+
+                        <h1 className='login-header' style={{marginTop: 40}}>Login as Existing Unit</h1>
+
+                        <div className='login-button' onClick={async () => {
+                            try {
+                                let server = await axios.post(Config.api + '/cad/get-unit', {
+                                    cookie: localStorage.getItem('cookie'),
+                                    access_code: localStorage.getItem('access_code'),
+                                })
+                                this.setState({server_id: server.data.server_id, registered: true})
+                                Config.toastSuccess('An existing unit was found, logging in!', 5000)
+                                this.updateData()
+                            }
+                            catch (err) {
+                                console.log(err)
+                                if (err.response && err.response.data) {
+                                    Config.toastFailure(err.response.data)
+                                }
+                            }
+                        }}>Go To MDT</div>
+
+                    </div>
+                </div>
+            )
+        }
+
         if (this.state.person_search_popout) {
             return (
                 <Popout
@@ -199,6 +318,7 @@ export default class CAD extends React.Component {
                 />
             )
         }
+
         if (this.state.vehicle_search_popout) {
             return (
                 <Popout
@@ -209,6 +329,7 @@ export default class CAD extends React.Component {
                 />
             )
         }
+
         if (this.state.codes_popout) {
             return (
                 <Popout
@@ -219,64 +340,138 @@ export default class CAD extends React.Component {
                 />
             )
         }
+
+        //Put Current Call Into Window
+        for (const i in this.state.calls) {
+            const call = this.state.calls[i]
+            if (call.id === this.state.current_call) {
+                if (this.state.callID !== call.id) {
+                    this.setState({
+                        callID: call.id,
+                        callTitle: call.title,
+                        callOrigin: call.origin,
+                        callStatus: call.status,
+                        callPriority: call.priority,
+                        callCode: call.code,
+                        callPrimary: call.primary,
+                        callLocation: call.location,
+                        callPostal: call.postal,
+                    })
+                    break
+                }
+            }
+        }
+
+        let activeColor
+        switch (this.state.status) {
+            case 'AVAILABLE':
+                activeColor = '#00d419'
+                break;
+            case 'BUSY':
+                activeColor = '#f5e500'
+                break;
+            case 'ENROUTE':
+                activeColor = '#f58300'
+                break;
+            case 'AWAITING CALL STATUS?':
+                activeColor = '#9700f5'
+                break;
+            case 'ONSCENE':
+                activeColor = '#9700f5'
+                break;
+            case 'UNAVAILABLE':
+                activeColor = '#fc0f03'
+                break;
+            case 'PANIC':
+                activeColor = this.state.panicColor
+                break;
+            default:
+                activeColor = '#FFFFFF'
+        }
+
         return (
             <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
                 { this.state.signal ?
                     <div style={{paddingVertical: 3, backgroundColor: this.state.panicColor, opacity: this.state.blinkOpacity}}>
                         <p style={{textAlign: 'center', fontSize: 15, color: 'white'}}>SIGNAL {this.state.signal} IS IN EFFECT</p>
-                    </div> 
+                    </div>
                     :
                     null
                 }
 
                 <div className='cad-header'>
-                    <p style={{width: '300px'}}>
-                        <Select className='cad-element cad-selector' styles={serverSelectorStyle} placeholder='Select a Server' options={this.state.servers} onChange={(selected) => {
-                            this.setState({'server_id': selected.value}, function() {
-                                this.updateData()
-                            })
-                        }} />
-                    </p>
+                    <div className='cad-element' style={{width: 500}}>
+                        <p style={{textTransform: 'uppercase'}}>Location: {this.state.location}</p>
+                    </div>
                     <div className='cad-element' style={{flex: 2}}>
-                        <p>{this.state.timedate}</p>
+                        <p style={{textTransform: 'uppercase', color: activeColor}}>Status: {this.state.status}</p>
                     </div>
-                    <div className='cad-element'>
-                        <p>{localStorage.getItem('server_name')}</p>
+                    <div className='cad-element' style={{width: 500}}>
+                        <p style={{textTransform: 'uppercase'}}>{this.state.callsign ? `[${this.state.callsign}] ${this.state.name}` : '' }</p>
                     </div>
+                </div>
+                <div className='cad-toolbar'>
+                    <div className='cad-toolbar-button' style={{borderColor: '#00d419'}} onClick={() => this.SelfStatus('AVAILABLE')}>10-8</div>
+                    <div className='cad-toolbar-button' style={{borderColor: '#fc0f03'}} onClick={() => this.SelfStatus('UNAVAILABLE')}>10-7</div>
+                    <div className='cad-toolbar-button' style={{borderColor: '#f5e500'}} onClick={() => this.SelfStatus('BUSY')}>10-6</div>
+                    <div className='cad-toolbar-button' style={{borderColor: '#34B3CE'}} onClick={() => this.SelfStatus('ENROUTE')}>10-97</div>
+                    <div className='cad-toolbar-button' style={{borderColor: '#9700f5'}} onClick={() => this.SelfStatus('ONSCENE')}>10-23</div>
                 </div>
                 <div className='cad-toolbar'>
                     <div className='cad-toolbar-button' onClick={() => this.setState({person_search: true})}>Person Lookup</div>
                     <div className='cad-toolbar-button' onClick={() => this.setState({vehicle_search: true})}>Vehicle Lookup</div>
                     <div className='cad-toolbar-button' onClick={() => this.setState({bolos_popup: !this.state.bolos_popup})}>Bolos</div>
-                    <div className='cad-toolbar-button' onClick={() => this.setState({notepad: !this.state.notepad})}>Notepad</div>
                     <div className='cad-toolbar-button' onClick={() => this.setState({codes_popup: !this.state.codes_popup})}>10-Codes</div>
-                    <div className='cad-toolbar-button' style={{borderColor: this.state.signal ? this.state.panicColor : '#fc7303'}} onClick={async () => {
-                        if (!this.state.signal) {
-                            let code = window.prompt("Signal Code?")
-                            await axios.post(Config.api + '/cad/signal', {
-                                cookie: localStorage.getItem('cookie'),
-                                server_id: this.state.server_id,
-                                signal: code,
-                            })
-                            this.updateData()
-                        } else {
-                            await axios.post(Config.api + '/cad/signal', {
-                                cookie: localStorage.getItem('cookie'),
-                                server_id: this.state.server_id,
-                                signal: null,
-                            })
-                            this.updateData()
-                        }
-                        
-                    }}>{this.state.signal ? 'End Signal' : 'Signal'}</div>
                     <div className='cad-toolbar-button' style={{borderColor: '#fc0f03'}} onClick={() => window.location = '/dashboard'}>Exit</div>
                 </div>
                 <div className='cad-window'>
                     <div className='cad-window-column'>
+                        {/* CALL EDITOR WINDOW */}
+                        <div className='cad-window-row' style={{height: '100%'}}>
+                            <div className='cad-window-header-group'>
+                                <div className='cad-window-header'>{this.state.current_call ? "CALL INFORMATION" : 'NO ACTIVE CALL'}</div>
+                                
+                                {this.state.current_call ? <div className='cad-window-header-button-group'>
+                                    <div className='cad-window-header-button' style={{backgroundColor: 'red'}} onClick={async () => {
+                                        await axios.post(Config.api + '/cad/detach-self', {
+                                            cookie: localStorage.getItem('cookie'),
+                                            access_code: localStorage.getItem('access_code'),
+                                            server_id: this.state.server_id
+                                        })
+                                        Config.toastSuccess('You have been removed from any active calls!')
+                                        this.updateData()
+                                    }}>Detach Self From Call</div>
+                                </div> : null}
+                                
+                            </div>
+                            
+                            {this.state.current_call ? <div>
+                                <div className='cad-editor-row'>
+                                    {this.GenerateCallField('Call Title', 'callTitle', 1)}
+                                </div>
+                                <div className='cad-editor-row'>
+                                    {this.GenerateCallField('Origin', 'callOrigin', 2)}
+                                    {this.GenerateCallField('Status', 'callStatus', 2)}
+                                    {this.GenerateCallField('Priority', 'callPriority', 1)}
+                                </div>
+                                <div className='cad-editor-row'>
+                                    {this.GenerateCallField('Code', 'callCode', 1)}
+                                    {this.GenerateCallField('Primary Unit', 'callPrimary', 1)}
+                                </div>
+                                <div className='cad-editor-row'>
+                                    {this.GenerateCallField('Location', 'callLocation', 1)}
+                                    {this.GenerateCallField('Postal', 'callPostal', 1)}
+                                </div>
+                            </div> : null}
+
+                        </div>
+
+                        </div>
+                    <div className='cad-window-column'>
 
                         {/* ACTIVE UNITS WINDOW */}
                         <div className='cad-window-row' style={{flex: 3}}>
-                            <div className='cad-window-header'>ACTIVE UNITS</div>
+                            <div className='cad-window-header'>OTHER UNITS</div>
                             <div className='cad-table'>
                                 <div className='cad-table-row'>
                                     <div className='cad-table-cell' style={{color: '#34B3CE'}}>Callsign</div>
@@ -288,6 +483,10 @@ export default class CAD extends React.Component {
                                     itemRenderer={(index, key) => {
 
                                         let unit = this.state.units[index]
+
+                                        if (unit.member_id === this.state.member_id) {
+                                            return
+                                        }
 
                                         if (unit.current_call && unit.status !== 'ENROUTE' && unit.status !== 'ONSCENE') {
                                             unit.status = 'AWAITING CALL STATUS?'
@@ -391,285 +590,7 @@ export default class CAD extends React.Component {
                         </div>
                       
                     </div>
-                    <div className='cad-window-column'>
-
-                        {/* CALL EDITOR WINDOW */}
-                        <div className='cad-window-row' style={{paddingBottom: 20}}>
-                            <div className='cad-window-header-group'>
-                                <div className='cad-window-header'>CALL EDITOR</div>
-                                <div className='cad-window-header-button-group'>
-                                    <div className='cad-window-header-button' onClick={async () => {
-                                        if (this.state.callID) {
-                                            Config.toastSuccess('Call editor cleared. Type some information and press "create call" to create a new call.', 5000)
-                                            this.clearCallState()
-                                            return
-                                        }
-                                        const cookie = localStorage.getItem('cookie')
-                                        const server_id = this.state.server_id
-                                        await axios.post(Config.api + '/cad/calls', {
-                                            cookie: cookie,
-                                            server_id: server_id,
-                                            title: this.state.callTitle,
-                                            origin: this.state.callOrigin,
-                                            status: this.state.callStatus,
-                                            priority: this.state.callPriority,
-                                            code: this.state.callCode,
-                                            primary: this.state.callPrimary,
-                                            address: this.state.callLocation,
-                                            postal: this.state.callPostal,
-                                        })
-                                        Config.toastSuccess('Call successfully created!')
-                                        this.updateData()
-                                        this.clearCallState()
-                                    }}>{this.state.callID ? 'New Call' : 'Create Call'}</div>
-                                    <div className='cad-window-header-button' style={{backgroundColor: '#212026'}} onClick={async () => {
-                                        if (this.state.callID) {
-                                            const cookie = localStorage.getItem('cookie')
-                                            const server_id = this.state.server_id
-                                            await axios.post(Config.api + '/cad/deletecall', {
-                                                cookie: cookie,
-                                                server_id: server_id,
-                                                call_id: this.state.callID,
-                                            })
-                                            Config.toastSuccess('Call successfully deleted.')
-                                            this.updateData()
-                                            this.clearCallState()
-                                            return
-                                        }
-                                        Config.toastSuccess('Call editor cleared. Type some information and press "create call" to create a new call.', 5000)
-                                        this.clearCallState()
-                                        
-                                    }}>Delete Call</div>
-                                </div>
-                            </div>
-                            
-                            <div className='cad-editor-row'>
-                                {this.GenerateCallField('Call Title', 'callTitle', 1)}
-                            </div>
-                            <div className='cad-editor-row'>
-                                {this.GenerateCallField('Origin', 'callOrigin', 2, [
-                                    {label: '911 Call', value: '911 Call'},
-                                    {label: 'Observed', value: 'Observed'},  
-                                ])}
-                                {this.GenerateCallField('Status', 'callStatus', 2, [
-                                    {label: 'Active', value: 'Active'},
-                                    {label: 'Pending', value: 'Pending'},
-                                    {label: 'On Hold', value: 'On Hold'},
-                                    {label: 'Closed', value: 'Closed'},
-                                ])}
-                                {this.GenerateCallField('Priority', 'callPriority', 1, [
-                                    {label: '1', value: 1},
-                                    {label: '2', value: 2},
-                                    {label: '3', value: 3},
-                                ])}
-                            </div>
-                            <div className='cad-editor-row'>
-                                {this.GenerateCallField('Code', 'callCode', 1, this.state.code_picker)}
-                                {this.GenerateCallField('Primary Unit', 'callPrimary', 1)}
-                            </div>
-                            <div className='cad-editor-row'>
-                                {this.GenerateCallField('Location', 'callLocation', 1)}
-                                {this.GenerateCallField('Postal', 'callPostal', 1)}
-                            </div>
-                        </div>
-
-                        {/* ACTIVE CALLS WINDOW */}
-                        <div className='cad-window-row' style={{flex: 2}}>
-                            <div className='cad-window-header'>ACTIVE CALLS</div>
-                            <div className='cad-table'>
-                                <div className='cad-table-row'>
-                                    <div className='cad-table-cell' style={{color: '#34B3CE'}}>Title</div>
-                                    <div className='cad-table-cell' style={{color: '#34B3CE'}}>Status</div>
-                                    <div className='cad-table-cell' style={{color: '#34B3CE'}}>Location</div>
-                                    <div className='cad-table-cell' style={{color: '#34B3CE'}}>Units</div>
-                                </div>
-                                <ReactList
-                                    itemRenderer={(index, key) => {
-
-                                        let call = this.state.calls[index]
-
-                                        let customRowStyle
-                                        if (call.id === this.state.callID) {
-                                            customRowStyle = {
-                                                backgroundColor: '#34B3CE',
-                                                borderBottom: '2px solid #34B3CE'
-                                            }
-                                        }
-
-                                        let units  = []
-                                        for (let i in this.state.units) {
-                                            let unit = this.state.units[i]
-                                            if (unit.current_call === call.id) {
-                                                units[units.length] = unit.callsign
-                                            }
-                                        }
-
-                                        return (
-                                            <div key={key} className='cad-table-row' style={customRowStyle} onClick={async () => {
-                                                await this.checkCallUpdate()
-                                                this.clearCallState()   
-                                                this.setState({
-                                                    callID: call.id,
-                                                    callTitle: call.title,
-                                                    callOrigin: call.origin,
-                                                    callStatus: call.status,
-                                                    callPriority: call.priority,
-                                                    callCode: call.code,
-                                                    callPrimary: call.primary,
-                                                    callLocation: call.address,
-                                                    callPostal: call.postal,
-                                                })
-                                                this.laststate = this.state
-                                            }}>
-                                                <div className='cad-table-cell'>
-                                                    {call.title}
-                                                </div>
-                                                <div className='cad-table-cell'>
-                                                    {call.status}
-                                                </div>
-                                                <div className='cad-table-cell'>
-                                                    {call.address ? call.address : '-------------'}
-                                                </div>
-                                                <div className='cad-table-cell'>
-                                                    {units.join(', ') ? units.join(', ') : '-------------'}
-                                                </div>
-                                            </div>
-                                        )
-                                    }}
-                                    length={this.state.calls.length}
-                                    type='uniform'
-                                />
-                            </div>
-                        </div>
-
-                    </div>
                 </div>
-
-                {/* Unit Management Context Menu */}
-                <Menu id='units' theme={theme.dark}>
-
-                     <Item className='context-blue' onClick={async() => {
-                        await axios.post(Config.api + '/cad/assign-unit', {
-                            cookie: localStorage.getItem('cookie'),
-                            server_id: this.state.server_id,
-                            member_id: this.state.context_unit_id,
-                            call_id: this.state.callID
-                        })
-                        this.updateData()
-                     }}>
-                        Attach to Call
-                    </Item>
-                    <Item className='context-less-red' onClick={async () => {
-                        await axios.post(Config.api + '/cad/assign-unit', {
-                            cookie: localStorage.getItem('cookie'),
-                            server_id: this.state.server_id,
-                            member_id: this.state.context_unit_id,
-                            call_id: null
-                        })
-                        this.updateData()
-                    }}>
-                        Detach from Call
-                    </Item>
-
-                    <Separator/>
-
-                    <Submenu label="Change Status">
-                        <Item className='context-green' onClick={() => this.ChangeUnitStatus('AVAILABLE')}>
-                            AVAILABLE
-                        </Item>
-                        <Item className='context-yellow' onClick={() => this.ChangeUnitStatus('BUSY')}>
-                            BUSY
-                        </Item>
-                        <Item className='context-orange' onClick={() => this.ChangeUnitStatus('ENROUTE')}>
-                            ENROUTE
-                        </Item>
-                        <Item className='context-purple' onClick={() => this.ChangeUnitStatus('ONSCENE')}>
-                            ONSCENE
-                        </Item>
-                        <Item className='context-red' onClick={() => this.ChangeUnitStatus('UNAVAILABLE')}>
-                            UNAVAILABLE
-                        </Item>
-                        <Item className='context-redder' onClick={() => this.ChangeUnitStatus('PANIC')}>
-                            PANIC!
-                        </Item>
-                    </Submenu>
-
-                    <Submenu label="Unit Override">
-                        <Item onClick={async () => {
-                            await axios.post(Config.api + '/cad/unit-override', {
-                                'cookie' : localStorage.getItem('cookie'),
-                                'server_id': this.state.server_id,
-                                'member_id': this.state.context_unit_id,
-                                'callsign': window.prompt("Enter the callsign you would like to override the current one with.")
-                            })
-                            this.updateData()
-                            Config.toastSuccess('Unit override request sent to server!')
-                        }}>
-                            Change Callsign
-                        </Item>
-                        <Item onClick={async () => {
-                            await axios.post(Config.api + '/cad/unit-override', {
-                                'cookie' : localStorage.getItem('cookie'),
-                                'server_id': this.state.server_id,
-                                'member_id': this.state.context_unit_id,
-                                'name': window.prompt("Enter a new name for this unit.")
-                            })
-                            this.updateData()
-                            Config.toastSuccess('Unit override request sent to server!')
-                        }}>
-                            Change Name
-                        </Item>
-                        <Item onClick={async () => {
-                            await axios.post(Config.api + '/cad/unit-override', {
-                                'cookie' : localStorage.getItem('cookie'),
-                                'server_id': this.state.server_id,
-                                'member_id': this.state.context_unit_id,
-                                'location': window.prompt("Enter the location you would like to override the current one with.")
-                            })
-                            this.updateData()
-                            Config.toastSuccess('Unit override request sent to server!')
-                        }}>
-                            Change Location
-                        </Item>
-                        <Item className='context-red' style={{color: 'red'}} onClick={() => this.RemoveUnit()}>
-                            Remove Unit
-                        </Item>
-                    </Submenu>
-                
-                </Menu>
-
-                {/* 911 Call Context Menu */}
-                <Menu id='911' theme={theme.dark}>
-                    <Item className='context-blue' onClick={async() => {
-                        if (!this.state.callTitle) {
-                            this.setState({
-                                callTitle: this.state.context_911_call.details
-                            })
-                        }
-                        if (!this.state.callLocation) {
-                            this.setState({
-                                callLocation: this.state.context_911_call.address
-                            })
-                        }
-                        if (!this.state.callStatus) {
-                            this.setState({
-                                callStatus: 'PENDING'
-                            })
-                        }
-                        this.setState({
-                            callOrigin: '911 Call'
-                        })
-                    }}>Insert Data</Item>
-                    <Item className='context-red' onClick={async() => {
-                        await axios.post(Config.api + '/cad/del911', {
-                            cookie: localStorage.getItem('cookie'),
-                            access_code: localStorage.getItem('access_code'),
-                            server_id: this.state.server_id,
-                            call911_id: this.state.context_911_call.id
-                        })
-                        this.updateData()
-                    }}>Delete Call</Item>
-                </Menu>
 
                 {/* Bolo Context Menu */}
                 <Menu id='bolo' theme={theme.dark}>
@@ -686,25 +607,6 @@ export default class CAD extends React.Component {
                         this.updateData()
                     }}>Delete Bolo</Item>
                 </Menu>
-
-                {/* Notepad */}
-                {this.state.notepad ?
-                (<Draggable
-                    axis="both"
-                    handle=".bolo-handle"
-                    defaultPosition={{x: 1, y: 1}}
-                    position={null}
-                    grid={[1, 1]}
-                    scale={1}
-                >
-                    <div className='bolo-container notepad'>
-                        <div className="bolo-handle">
-                            <p className='bolo-title'>Notepad</p>
-                            <p className='bolo-minimize' onClick={() => {this.setState({notepad: false})}}><FontAwesomeIcon icon={faTimes} /></p>
-                        </div>
-                        <textarea style={{resize: 'none'}} onChange={(text) => this.setState({notepad_content: text.target.value})}>{this.state.notepad_content}</textarea>
-                    </div>
-                </Draggable>) : null}
 
                 {/* Bolos */}
                 {this.state.bolos_popup ?
@@ -958,78 +860,13 @@ export default class CAD extends React.Component {
         this.updateData()
     }
 
-    GenerateCallField(placeholder, variable, flex, options) {
-        if (options) {
-            const customStyle = {
-                singleValue: (provided, state) => ({
-                    ...provided,
-                    color: 'white'
-                }),
-                valueContainer: (provided, state) => ({
-                    ...provided,
-                    paddingTop: 0,
-                    paddingBottom: 0,
-                    minHeight: 0,
-                }),
-                dropdownIndicator: (provided, state) => ({
-                    ...provided,
-                    paddingTop: 0,
-                    paddingBottom: 0
-                }),
-                indicatorSeparator: (provided, state) => ({
-                    ...provided,
-                    display: 'none'
-                }),
-                input: (provided, state) => ({
-                    ...provided,
-                    color: '#BCBCBC'
-                }),
-                placeholder: (provided, state) => ({
-                    ...provided,
-                    color: 'white'
-                }),
-                control: (provided, state) => ({
-                    ...provided,
-                    backgroundColor: '#212026',
-                    outline: 'none',
-                    border: 0,
-                    boxShadow: 'none',
-                    minHeight: 0,
-                }),
-                menu: (provided, state) => ({
-                    ...provided,
-                    backgroundColor: '#212026',
-                    outline: 'none',
-                    border: 'none',
-                }),
-                option: (provided, { data, isDisabled, isFocused, isSelected }) => ({
-                    ...provided,
-                    color: 'white',
-                    backgroundColor: isSelected ? '#34B3CE' : null,
-                    '&:hover': {
-                        backgroundColor: '#111015'
-                    }
-                }),
-            }
-            return (
-                <div className='cad-editor-cell'>
-                    <div>
-                        <p>{placeholder}</p>
-                    </div>
-                    <Select className='popup-call-select' styles={customStyle} value={this.state[variable]} placeholder={this.state[variable]} options={options} onChange={(selected) => {
-                        this.setState({[variable]: selected.value})
-                    }} />
-                </div>
-            )
-        }
+    GenerateCallField(placeholder, variable, flex) {
         return (
             <div className='cad-editor-cell' style={{flex: flex}}>
                 <div>
                     <p>{placeholder}</p>
                 </div>
-                <input type='text' value={this.state[variable]} onChange={(e) => {
-                    this.setState({[variable]: e.target.value})
-                }}/>
+                <input type='text' disabled={true} value={this.state[variable]}/>
             </div>
         )
     }

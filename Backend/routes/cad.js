@@ -8,7 +8,7 @@ const { CAD } = require('../shared')
 
 
 router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         const ingame_id = req.body.ingame_id
         const name = req.body.name
         const callsign = req.body.callsign
@@ -25,6 +25,20 @@ router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, 
         await CAD.query(`INSERT INTO units (server_id, member_id, ingame_id, callsign, name, status, last_update) VALUES (?, ?, ?, ?, ?, ?, ?)`, [req.server, req.member, ingame_id, callsign, name, 'AVAILABLE', Date.now()])
 
         res.status(201).send('Unit added to database!')
+    }
+})
+
+router.post('/get-unit', middleware.LoggedInMember, async (req, res) => {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
+
+        let units = await CAD.query(`SELECT server_id FROM units WHERE member_id = ?`, [req.member])
+        if (units[0].length > 0) {
+            res.status(201).json({server_id: units[0][0].server_id})
+            return
+        }
+
+        res.status(403).send('No existing units found, create a new one!')
+        
     }
 })
 
@@ -78,6 +92,16 @@ router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerI
 
 })
 
+router.post('/detach-self', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
+    if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
+
+        await CAD.query('UPDATE units SET current_call = NULL WHERE member_id = ? AND server_id = ?', [req.member, req.server])
+
+        res.status(200).send('Successfully detached from any active calls!')
+        
+    }
+})
+
 router.post('/unit-status', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
 
     const member_id = req.body.member_id
@@ -95,8 +119,8 @@ router.post('/unit-status', middleware.LoggedInMember, middleware.ProvideServerI
 
 })
 
-router.post('/self-status', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Police, async (req, res) => {
-    if (await PermissionsArray(req, res, ['POLICE', 'FIRE'])) {
+router.post('/self-status', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
+    if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
         const status = req.body.status
 
         if (!['AVAILABLE', 'UNAVAILABLE', 'BUSY', 'ENROUTE', 'ONSCENE', 'PANIC'].includes(status)) {
@@ -111,8 +135,8 @@ router.post('/self-status', middleware.LoggedInMember, middleware.ProvideServerI
 })
 
 router.post('/my-status', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
-    if (await PermissionsArray(req, res, ['POLICE', 'FIRE'])) {
-        const data = await CAD.query(`SELECT current_call, callsign, name, location, status FROM units WHERE server_id = ? AND member_id = ?`, [req.server, req.member])
+    if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
+        const data = await CAD.query(`SELECT member_id, current_call, callsign, name, location, status FROM units WHERE server_id = ? AND member_id = ?`, [req.server, req.member])
 
         if (data[0].length) {
             res.status(200).json(data[0][0])
@@ -178,7 +202,7 @@ router.post('/deletecall', middleware.LoggedInMember, middleware.ProvideServerID
 })
 
 router.post('/bolo', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         const bolo_id = req.body.bolo_id
         const bolo_info = {
             plate: req.body.plate,
@@ -215,7 +239,7 @@ router.post('/bolo', middleware.LoggedInMember, middleware.ProvideServerID, asyn
 })
 
 router.post('/deletebolo', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         let bolo_id = req.body.bolo_id
 
         CAD.query(`DELETE FROM bolos WHERE id = ? AND server_id = ?`, [bolo_id, req.server])
@@ -225,7 +249,7 @@ router.post('/deletebolo', middleware.LoggedInMember, middleware.ProvideServerID
 })
 
 router.post('/current', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         const community_id = (await CAD.query(`SELECT community_id FROM servers WHERE id = ?`, [req.server]))[0][0].community_id
 
         const calls = await CAD.query(`SELECT * FROM calls WHERE server_id = ? ORDER BY id DESC`, [req.server])
@@ -303,21 +327,21 @@ router.post('/del911', middleware.LoggedInMember, middleware.ProvideServerID, Pe
 })
 
 router.post('/get-servers', middleware.LoggedInMember, middleware.ProvideCommunity, async (req, res) => {
-    if (await PermissionsArray(req, res, ['MANAGE_SERVERS', 'DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['MANAGE_SERVERS', 'DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         let results = await CAD.query(`SELECT id, name FROM servers WHERE community_id = ?`, [req.community])
         res.status(200).json(results[0])
     }
 })
 
 router.post('/get-codes', middleware.LoggedInMember, middleware.ProvideCommunity, async (req, res) => {
-    if (await PermissionsArray(req, res, ['MANAGE_CODES', 'DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['MANAGE_CODES', 'DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         let results = await CAD.query(`SELECT * FROM codes WHERE community_id = ? ORDER BY code`, [req.community])
         res.status(200).json(results[0])
     }
 })
 
 router.post('/lookup-person', middleware.LoggedInMember, middleware.ProvideCommunity, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         let firstName = req.body.first_name
         let lastName = req.body.last_name
         let dateOfBirth = req.body.date_of_birth
@@ -360,7 +384,7 @@ router.post('/lookup-person', middleware.LoggedInMember, middleware.ProvideCommu
 })
 
 router.post('/lookup-vehicle', middleware.LoggedInMember, middleware.ProvideCommunity, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         let plate = req.body.plate
         let color = req.body.color
         let make = req.body.make
@@ -412,7 +436,7 @@ router.post('/lookup-vehicle', middleware.LoggedInMember, middleware.ProvideComm
 // Signal Code Manager
 let signals = {}
 router.post('/signal', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
-    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE', 'FIRE'])) {
+    if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         let signal = req.body.signal
         if (!signal || !isNaN(signal)) {
 

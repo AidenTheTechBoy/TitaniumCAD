@@ -107,7 +107,7 @@ export default class Dashboard extends React.Component {
 
                         {
                         (this.state.permissions.permission_police_mdt | this.state.permissions.permission_fire_mdt) ?
-                        <div className='dashboard-item'>
+                        <div className='dashboard-item' onClick={() => window.location = '/mdt'}>
                             <div className='dashboard-icon-container'>
                                 <FontAwesomeIcon className='dashboard-icon' icon={faLaptop} />
                             </div>
