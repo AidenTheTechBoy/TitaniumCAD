@@ -119,8 +119,17 @@ router.post('/civilians/delete', middleware.LoggedInMember, middleware.ProvideCo
         return
     }
 
-    await CAD.query(`DELETE FROM civilians WHERE id = ? AND community_id = ? AND member_id = ?`, [civilianID, req.community, req.member])
-    res.status(200).send('Civilian removed!')
+    const member = await CAD.query(`SELECT id FROM civilians WHERE id = ? AND community_id = ? AND member_id = ?`, [civilianID, req.community, req.member])
+    if (member[0].length) {
+        CAD.query(`DELETE FROM civilians WHERE id = ? AND community_id = ? AND member_id = ?`, [civilianID, req.community, req.member])
+        CAD.query(`DELETE FROM vehicles WHERE civilian_id = ?`, [civilianID])
+        CAD.query(`DELETE FROM firearms WHERE civilian_id = ?`, [civilianID])
+        res.status(200).send('Civilian and all data removed!')
+        return
+    }
+
+    res.status(400).send('Unable to find a civilian with the data provided.')
+
 })
 
 module.exports = {}
