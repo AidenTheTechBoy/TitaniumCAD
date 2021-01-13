@@ -55,7 +55,7 @@ export default class MDT extends React.Component {
         let res = await axios.post(Config.api + '/cad/current', {
             'cookie' : localStorage.getItem('cookie'),
             'server_id': this.state.server_id,
-        })
+        }, {timeout: 5000})
 
         let codes = []
         for (const i in res.data.codes) {
@@ -80,7 +80,7 @@ export default class MDT extends React.Component {
         let res = await axios.post(Config.api + '/cad/my-status', {
             'cookie' : localStorage.getItem('cookie'),
             'server_id': this.state.server_id,
-        })
+        }, {timeout: 5000})
         this.setState({
             'member_id': res.data.member_id,
             'current_call': res.data.current_call,
@@ -92,45 +92,6 @@ export default class MDT extends React.Component {
         console.log(res.data)
     }
 
-    async checkCallUpdate() {
-        if (!this.state.callID) {
-            return
-        }
-        const watch = [
-            "callID",
-            "callTitle",
-            "callOrigin",
-            "callStatus",
-            "callPriority",
-            "callCode",
-            "callPrimary",
-            "callLocation",
-            "callPostal",
-        ]
-
-        for (let i in watch) {
-            if (this.state[watch[i]] !== this.laststate[watch[i]]) {
-                const cookie = localStorage.getItem('cookie')
-                const server_id = this.state.server_id
-                await axios.post(Config.api + '/cad/calls', {
-                    cookie: cookie,
-                    server_id: server_id,
-                    call_id: this.state.callID,
-                    title: this.state.callTitle,
-                    origin: this.state.callOrigin,
-                    status: this.state.callStatus,
-                    priority: this.state.callPriority,
-                    code: this.state.callCode,
-                    primary: this.state.callPrimary,
-                    address: this.state.callLocation,
-                    postal: this.state.callPostal,
-                })
-                this.laststate = this.state
-                return
-            }
-        }
-    }
-
     componentDidMount() {
         this.updateServers()
         this.clearCallState()
@@ -139,11 +100,6 @@ export default class MDT extends React.Component {
         setInterval(() => {
             this.setState({timedate: new Date().toLocaleTimeString()})
         }, 1000)
-
-        //Check for Call Updates
-        setInterval(async () => {
-            await this.checkCallUpdate()
-        }, 4000)
 
         //Panic Opacity
         setInterval(() => {
@@ -156,7 +112,7 @@ export default class MDT extends React.Component {
 
         //Get New CAD Data
         setInterval(async () => {
-            if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
+            if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 4000 : 8000) ) {
                 await this.updateData().then(() => {
                     this.state.lastRequestCompletion = Date.now()
                 })

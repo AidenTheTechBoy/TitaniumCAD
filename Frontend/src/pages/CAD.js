@@ -51,7 +51,7 @@ export default class CAD extends React.Component {
         let res = await axios.post(Config.api + '/cad/current', {
             'cookie' : localStorage.getItem('cookie'),
             'server_id': this.state.server_id,
-        })
+        }, {timeout: 5000})
 
         let codes = []
         for (const i in res.data.codes) {
@@ -137,9 +137,8 @@ export default class CAD extends React.Component {
         //Get New CAD Data
         setInterval(async () => {
             if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
-                await this.updateData().then(() => {
-                    this.state.lastRequestCompletion = Date.now()
-                })
+                this.updateData()
+                this.state.lastRequestCompletion = Date.now()
             }
         }, 1000)
     }
