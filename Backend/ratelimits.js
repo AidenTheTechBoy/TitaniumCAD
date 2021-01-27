@@ -15,11 +15,11 @@ const rateLimits = {
         message: "To many attempted creations from this IP! Wait 30 minutes!"
     }),
 
-    // 6 req / 60 min
+    // 2 req / 60 min
     forgotPassword: rateLimit({
         windowMs: 60 * 60 * 1000,
         max: 6,
-        message: "To many attempted password resets from this IP! Wait an hour!"
+        message: "To many attempted password resets from this IP! Wait two hours and try again."
     }),
 }
 
