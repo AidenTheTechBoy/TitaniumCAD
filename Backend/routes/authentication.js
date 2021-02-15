@@ -285,15 +285,17 @@ async function CreateUser(email, username, password, community_id) {
     let currentTime = Date.now()
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    //Check if Community is Public
-    let isPublic = false
-    if ( (await CAD.query(`SELECT public FROM communities WHERE id = ?`, [community_id]))[0][0].public  ) {
-        isPublic = true
-    }
-
     if (community_id) {
+
+        //Check if Community is Public
+        let isPublic = false
+        if ( (await CAD.query(`SELECT public FROM communities WHERE id = ?`, [community_id]))[0][0].public  ) {
+            isPublic = true
+        }
+            
         await CAD.query(`INSERT INTO members (community_id, email, username, password, verified, permission_civilian) VALUES (?, ?, ?, ?, false, ?)`, [community_id, email, username, hashedPassword, isPublic])
         return true
+        
     }
     await CAD.query(`INSERT INTO users (email, username, password, verified) VALUES (?, ?, ?, false)`, [email, username, hashedPassword])
 }
