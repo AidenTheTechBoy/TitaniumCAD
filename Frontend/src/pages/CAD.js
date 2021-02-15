@@ -141,6 +141,7 @@ export default class CAD extends React.Component {
                 this.state.lastRequestCompletion = Date.now()
             }
         }, 1000)
+
     }
 
     async updateServers() {

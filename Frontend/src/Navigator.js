@@ -14,6 +14,7 @@ import Codes from './pages/Codes';
 import DMV from "./pages/DMV";
 import Dashboard from "./pages/Dashboard";
 import Database from './pages/Database'
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import MDT from './pages/MDT';
 import MDashboard from "./pages/ManagerDashboard";
@@ -82,7 +83,8 @@ export default function Navigator() {
                         <Manager />
                     </Route>
                     <Route path="/">
-                        <Home />
+                        {/* <Home /> */}
+                        <Home/>
                     </Route>
                 </Switch>
         </Router>
@@ -115,17 +117,6 @@ function ForceLogin() {
         
     }
     return false
-}
-
-//Home Page
-function Home() {
-  return (
-    <div>
-      <h1 style={{color: 'white'}}>Welcome to Titanium CAD</h1>
-      <a href='/manager/dashboard' style={{display:'block', color: 'white', textDecoration: 'none', backgroundColor: '#00d419', padding: '20px', textAlign: 'center'}}>Open Manager</a>
-      <a href='/dashboard' style={{display:'block', color: 'white', textDecoration: 'none', backgroundColor: '#34B3CE', padding: '20px', textAlign: 'center'}}>Open Community Dashboard</a>
-    </div>
-  )
 }
 
 //Manager Pages

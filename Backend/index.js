@@ -25,7 +25,13 @@ app.use(bodyParser.json({
 //Setup Cors
 app.use(cors())
 
-// 1000 req / 5 min
+// 10 req / 5 second
+app.use("/", rateLimit({
+    windowMs: 1000,
+    max: 5
+}))
+
+// 200 req / 5 min
 app.use("/", rateLimit({
     windowMs: 5 * 60 * 1000,
     max: 1000

@@ -26,7 +26,7 @@ const PASSWORD_REGEX = new RegExp("((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\\W]).{
 
 
 // Account Registration
-router.post('/register', ratelimits.createLimit, async (req, res) => {
+router.post('/register', ratelimits.createLimit1, ratelimits.createLimit2, async (req, res) => {
 
     const email = req.body.email
     const username = req.body.username
@@ -80,7 +80,7 @@ router.post('/register', ratelimits.createLimit, async (req, res) => {
 })
 
 // Login (send verification email)
-router.post('/login', ratelimits.loginLimit, async (req, res) => {
+router.post('/login', ratelimits.loginLimit1, ratelimits.loginLimit2, async (req, res) => {
 
     let cookies = new Cookies(req, res)
 
@@ -99,7 +99,7 @@ router.post('/login', ratelimits.loginLimit, async (req, res) => {
         }
     }
 
-    const { cookie, expiration } = await Login(email, password, community_id)
+    const { cookie, expiration } = await Login(email, password, community_id, req.ip)
     
     if (cookie) {
         if (cookie == 'VERIFY') {
@@ -134,7 +134,7 @@ router.post('/login', ratelimits.loginLimit, async (req, res) => {
 })
 
 // Forgot Password
-router.post('/forgot-password', ratelimits.forgotPassword, async (req, res) => {
+router.get('/forgot-password', ratelimits.forgotPassword1, async (req, res) => {
     const email = req.body.email
     const access_code = req.body.access_code
 
@@ -157,7 +157,7 @@ router.post('/forgot-password', ratelimits.forgotPassword, async (req, res) => {
             await CAD.query(`INSERT INTO forgotpassword (member_id, code, expiration) VALUES (?, ?, ?)`, [member.id, code, Date.now() + 3600000]) // 1hr
             
             //TODO: Add IP to email
-            const sentEmail = await emailer.SendEmail(email, 'Password Reset', `http://localhost:5000/reset-password?code=${code}`, `http://localhost:5000/reset-password?code=${code}`)
+            const sentEmail = await emailer.SendEmail(email, 'Password Reset', `${process.env.BACKEND_URL}/reset-password?code=${code}`, `${process.env.BACKEND_URL}/reset-password?code=${code}`)
             console.log(sentEmail)
 
             res.status(200).send('Password reset email sent!')
@@ -175,7 +175,7 @@ router.post('/forgot-password', ratelimits.forgotPassword, async (req, res) => {
             await CAD.query(`INSERT INTO forgotpassword (user_id, code, expiration) VALUES (?, ?, ?)`, [user.id, code, Date.now() + 3600000]) // 1hr
             
             //TODO: Add IP to email
-            const sentEmail = await emailer.SendEmail(email, 'Password Reset', `http://localhost:5000/reset-password?code=${code}`, `http://localhost:5000/reset-password?code=${code}`)
+            const sentEmail = await emailer.SendEmail(email, 'Password Reset', `${process.env.BACKEND_URL}/reset-password?code=${code}`, `${process.env.BACKEND_URL}/reset-password?code=${code}`)
             console.log(sentEmail)
 
             res.status(200).send('Password reset email sent!')
@@ -303,11 +303,11 @@ async function CreateUser(email, username, password, community_id) {
  * @param {string} email
  * @returns {boolean} 
 */
-async function Login(email, password, community_id) {
+async function Login(email, password, community_id, ip) {
 
     if (community_id) {
         //Get Accounts with Email
-        const res = await CAD.query(`SELECT id, password, verified FROM members WHERE email = ? AND community_id = ?`, [email, community_id])
+        const res = await CAD.query(`SELECT id, username, password, verified FROM members WHERE email = ? AND community_id = ?`, [email, community_id])
         if (res[0].length > 0) {
             const member = res[0][0]
 
@@ -323,10 +323,23 @@ async function Login(email, password, community_id) {
                     const expiration = Date.now() + 43200000 //12 Hours
                     await CAD.query(`INSERT INTO verification (member_id, code, expiration) VALUES (?, ?, ?)`, [member.id, code, expiration])
 
-                    const sentEmail = await emailer.SendEmail(email, 'Verification', `http://localhost:5000/verify?code=${code}`, `http://localhost:5000/verify?code=${code}`)
-                    console.log(sentEmail)
+                    const {name, access_code} = (await CAD.query(`SELECT name, access_code FROM communities WHERE id = ?`, [community_id]))[0][0]
+                    console.log(name, access_code)
 
-                    return {cookie: 'VALID', expiration: null}
+                    const sentEmail = await emailer.SendEmail(
+                        email,
+                        `Verify Your Account (${access_code.toLowerCase()})`,
+                        `Click this link to verify your email: ${process.env.BACKEND_URL}/verify?code=${code}`,
+                        await emailer.CreateEmail('verify', {
+                            community_name: name.toUpperCase(),
+                            ip: ip,
+                            username: member.username,
+                            email: email,
+                            verify_link: `${process.env.BACKEND_URL}/verify?code=${code}`
+                        })
+                    )
+
+                    return {cookie: 'VERIFY', expiration: null}
 
                 }
 
@@ -349,14 +362,14 @@ async function Login(email, password, community_id) {
                 return {cookie: sessionKey, expiration: expiration} 
 
             }
-            return null
+            return [ null, null ]
             
         }
-        return null
+        return [ null, null ]
     }
     
     //Get Accounts with Email
-    const res = await CAD.query(`SELECT id, password, verified FROM users WHERE email = ?`, [email])
+    const res = await CAD.query(`SELECT id, username, password, verified FROM users WHERE email = ?`, [email])
     if (res[0].length > 0) {
         const user = res[0][0]
 
@@ -372,10 +385,20 @@ async function Login(email, password, community_id) {
                 const expiration = Date.now() + 43200000 //12 Hours
                 await CAD.query(`INSERT INTO verification (user_id, code, expiration) VALUES (?, ?, ?)`, [user.id, code, expiration])
 
-                const sentEmail = await emailer.SendEmail(email, 'Verify Your Email', `Verify at http://localhost:5000/verify?code=${code}`, `<a href='http://localhost:5000/verify?code=${code}'>Click Here to Verify Your Email</a>`)
-                console.log(sentEmail)
-
-                return {cookie: 'VALID', expiration: null}
+                const sentEmail = await emailer.SendEmail(
+                    email,
+                    'Verify Your TitaniumCAD Manager Account',
+                    `Click this link to verify your email: ${process.env.BACKEND_URL}/verify?code=${code}`,
+                    await emailer.CreateEmail('verify', {
+                        community_name: 'TitaniumCAD Manager',
+                        ip: ip,
+                        username: user.username,
+                        email: email,
+                        verify_link: `${process.env.BACKEND_URL}/verify?code=${code}`
+                    })
+                )
+                
+                return {cookie: 'VERIFY', expiration: null}
 
             }
 

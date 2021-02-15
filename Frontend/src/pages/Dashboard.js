@@ -57,7 +57,7 @@ export default class Dashboard extends React.Component {
     render() {
         return (
             <div>
-                <Header back='/logout' message='Logout' logout={true} />
+                <Header back='/' message='Home' logout={true} />
                 <div className='dashboard-container'>
                     <div className='dashboard-server'>
                         <div style={{display: 'flex', alignContent: 'center', justifyContent: 'center'}}>

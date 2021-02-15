@@ -49,7 +49,7 @@ async function Middleware (req, res, next, permission) {
     if (authorized) {
         return true
     }
-    res.status(403).send('You do not have permission to perform this action.')
+    // res.status(403).send('You do not have permission to perform this action.')
     return false
 }
 

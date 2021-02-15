@@ -25,7 +25,8 @@
     "react-tiny-fab": "^4.0.2",
     "react-toastify": "^6.2.0",
     "reactjs-popup": "^2.0.4",
-    "web-vitals": "^0.2.4"
+    "web-vitals": "^0.2.4",
+    "webpack-cli": "^4.5.0"
   },
   "scripts": {
     "start": "set PORT=80 && react-scripts start",

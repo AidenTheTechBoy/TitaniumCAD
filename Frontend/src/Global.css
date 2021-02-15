@@ -61,6 +61,69 @@ button {
     align-self: center;
 }
 
+/* Home Page */
+.home-nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+.home-nav-title {
+    float: left;
+}
+.home-nav-item {
+    float: right;
+}
+.home-nav-a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 18px 16px;
+    text-decoration: none;
+}
+.home-nav-a-title {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 18px 16px;
+    text-decoration: none;
+    cursor: default;
+}
+.home-nav-a-manage {
+    color: #34B3CE;
+    padding: 5px 15px;
+    margin: 11px 8px;
+    border: 2px solid #34B3CE;
+    border-radius: 15px;
+}
+.home-nav-a:hover {
+    background-color: #111;
+}
+.home-container {
+    margin-left: 15%;
+    margin-right: 15%;
+}
+.home-title {
+    color: white;
+    text-align: center;
+    font-size: 50px;
+}
+.home-subtitle {
+    color: #999;
+    font-weight: 100;
+    text-align: center;
+}
+.home-join-btn {
+    display: block;
+    text-decoration: none;
+    color: white;
+    background-color: #34B3CE;
+    padding: 20px;
+    text-align: center;
+    margin-top: 50px;
+}
+
 /* List Styling */
 .list-container {
     margin-left: 15%;
@@ -884,6 +947,10 @@ button {
     .m-dashboard-container {
         margin-left: 2vw;
         margin-right: 2vw;
+    }
+    .home-container {
+        margin-left: 5vw;
+        margin-right: 5vw;
     }
     /* Make Dashboard Elements Inline */
     .dashboard-container {

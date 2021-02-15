@@ -1,6 +1,15 @@
 const nodemailer = require('nodemailer')
+const handlebars = require('handlebars')
+const aws = require('aws-sdk');
+const fs = require('fs')
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+aws.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_PRIVATE_KEY,
+    region: 'us-east-2'
+})
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // TEMP FLAG - REMOVE BEFORE RELEASE
 
 var lastSent = {}
 async function SendEmail(email, subject, text, html) {
@@ -8,16 +17,10 @@ async function SendEmail(email, subject, text, html) {
     console.log(lastSent)
     if (!lastSent[email] || lastSent[email] < Date.now() - 300000) { // 5 min delay
 
-        let testAccount = await nodemailer.createTestAccount()
-
         let transporter = nodemailer.createTransport({
-            host: "smtp.ethereal.email",
-            port: 587,
-            secure: false,
-            auth: {
-                user: testAccount.user,
-                pass: testAccount.pass
-            },
+            SES: new aws.SES({
+                apiVersion: '2010-12-01'
+            })
         })
 
         let info = await transporter.sendMail({
@@ -29,8 +32,10 @@ async function SendEmail(email, subject, text, html) {
         })
 
         lastSent[email] = Date.now()
-
-        return nodemailer.getTestMessageUrl(info)
+        
+        console.log('email sent')
+        console.log(info)
+        return 'Email Sent'
 
     }
 
@@ -38,4 +43,10 @@ async function SendEmail(email, subject, text, html) {
 
 }
 
-module.exports = { SendEmail }
+async function CreateEmail(template_name, fill_data) {
+    const data = fs.readFileSync(`./emails/${template_name}.hbs`)
+    const template = handlebars.compile(data.toString())
+    return template(fill_data)
+}
+
+module.exports = { SendEmail, CreateEmail }
