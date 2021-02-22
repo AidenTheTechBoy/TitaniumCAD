@@ -92,30 +92,28 @@ export default function Navigator() {
 }
 
 function ForceLogin() {
-    //No Cookie or Expired
-    const cookie_expiration = localStorage.getItem('expiration')
-    if (Date.now() > cookie_expiration || !localStorage.getItem('cookie')) {
-
-        //Manager Pages
-        if (window.location.pathname.startsWith('/manager')) {
+    
+    //Manager Pages
+    if (window.location.pathname.startsWith('/manager')) {
+        if (!localStorage.getItem('manager-cookie') || localStorage.getItem('manager-expiration') < Date.now()) {
             if (window.location.pathname !== '/manager/login') {
                 setTimeout(function () {
                     window.location = '/manager/login'
                 }, 1000)
                 return true
             }
-            return false
         }
-
-        //Normal Pages
-        if ( !['/', '/login'].includes(window.location.pathname) ) {
-            setTimeout(function () {
-                window.location = '/login'
-            }, 1000)
-            return true
-        }
-        
+        return false
     }
+    
+    //Normal Pages
+    if ( !['/', '/login'].includes(window.location.pathname) && ( !localStorage.getItem('cookie') || localStorage.getItem('expiration') < Date.now() )) {
+        setTimeout(function () {
+            window.location = '/login'
+        }, 1000)
+        return true
+    }
+
     return false
 }
 

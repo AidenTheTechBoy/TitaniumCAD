@@ -54,8 +54,8 @@ export default class ManagerLogin extends React.Component {
             })
             if (req.data) {
                 localStorage.setItem('manager-cookie', req.data.cookie)
-                localStorage.setItem('expiration', req.data.expiration)
-                localStorage.setItem('username', req.data.username)
+                localStorage.setItem('manager-expiration', req.data.expiration)
+                localStorage.setItem('manager-username', req.data.username)
                 window.location.pathname = '/manager/dashboard'
             }
         }

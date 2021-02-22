@@ -15,9 +15,6 @@ export default class ManagerDashboard extends React.Component {
             hasSubscription: false,
             planMessage: '',
         }
-        if (!localStorage.getItem('manager-cookie')) {
-            window.location = '/manager/login'
-        }
     }
 
     async componentDidMount() {
@@ -52,10 +49,6 @@ export default class ManagerDashboard extends React.Component {
     }
 
     render() {
-        
-        if (!localStorage.getItem('manager-cookie')) {
-            window.location = '/manager/login'
-        }
 
         const selectStyle = {
             singleValue: (provided, state) => ({
