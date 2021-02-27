@@ -3,8 +3,9 @@ const mysql = require('mysql2')
 class Shared {
 
     static CAD = mysql.createConnection({
-        host: 'localhost',
-        user: 'test',
+        host: process.env.SQL_HOST,
+        user: process.env.SQL_USER,
+        password: process.env.SQL_PASSWORD,
         database: 'cad',
     }).promise()
 
