@@ -1,28 +1,28 @@
-CREATE DATABASE IF NOT EXISTS CAD;
-USE CAD;
+CREATE DATABASE IF NOT EXISTS cad;
+USE cad;
 
-CREATE TABLE `Verification` (
+CREATE TABLE `verification` (
     `user_id` INT,
     `member_id` INT,
     `code` VARCHAR(255) NOT NULL,
     `expiration` BIGINT NOT NULL 
 );
 
-CREATE TABLE `ForgotPassword` (
+CREATE TABLE `forgotpassword` (
     `user_id` INT,
     `member_id` INT,
     `code` VARCHAR(255) NOT NULL,
     `expiration` BIGINT NOT NULL 
 );
 
-CREATE TABLE `Cookies` (
+CREATE TABLE `cookies` (
     `user_id` INT,
     `member_id` INT,
     `session` VARCHAR(255) NOT NULL,
     `expiration` BIGINT NOT NULL
 );
 
-CREATE TABLE `Users` (
+CREATE TABLE `users` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `email` VARCHAR(255) UNIQUE NOT NULL,
     `username` VARCHAR(255) UNIQUE NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `Users` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Communities` (
+CREATE TABLE `communities` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `description` VARCHAR(255),
@@ -53,7 +53,7 @@ CREATE TABLE `Communities` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Servers` (
+CREATE TABLE `servers` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `name` VARCHAR(255) NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE `Servers` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Members` (
+CREATE TABLE `members` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `email` VARCHAR(255) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE `Members` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Civilians` (
+CREATE TABLE `civilians` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `member_id` INT NOT NULL,
     `community_id` INT NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE `Civilians` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Vehicles` (
+CREATE TABLE `vehicles` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `civilian_id` INT NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE `Vehicles` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Firearms` (
+CREATE TABLE `firearms` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `civilian_id` INT NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE `Firearms` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Departments` (
+CREATE TABLE `departments` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `name` VARCHAR(30) NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE `911` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Units` (
+CREATE TABLE `units` (
     `server_id` INT NOT NULL,
     `member_id` INT NOT NULL,
     `ingame_id` INT NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE `Units` (
     `last_update` VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE `Bolos` (
+CREATE TABLE `bolos` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `server_id` INT NOT NULL,
     `plate` VARCHAR(255),
@@ -169,7 +169,7 @@ CREATE TABLE `Bolos` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Codes` (
+CREATE TABLE `codes` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `code` VARCHAR(10),
@@ -177,7 +177,7 @@ CREATE TABLE `Codes` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Calls` (
+CREATE TABLE `calls` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `server_id` INT NOT NULL,
     `origin` VARCHAR(20), --Called In / Officer Initiated / Dispatched / 
