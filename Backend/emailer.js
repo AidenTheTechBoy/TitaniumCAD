@@ -9,7 +9,7 @@ aws.config.update({
     region: 'us-east-2'
 })
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // TEMP FLAG - REMOVE BEFORE RELEASE
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // TEMP FLAG - REMOVE BEFORE RELEASE
 
 var lastSent = {}
 async function SendEmail(email, subject, text, html) {
