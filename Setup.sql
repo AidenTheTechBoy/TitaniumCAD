@@ -38,6 +38,7 @@ CREATE TABLE `communities` (
     `name` VARCHAR(255) NOT NULL,
     `description` VARCHAR(255),
     `user_id` INT NOT NULL,
+    `owner_member_id` INT NOT NULL,
     `access_code` VARCHAR(255) NOT NULL UNIQUE,
     `plan` INT NOT NULL,
     `status` VARCHAR(255),
