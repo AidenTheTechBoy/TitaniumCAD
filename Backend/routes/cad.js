@@ -369,17 +369,14 @@ router.post('/lookup-person', middleware.LoggedInMember, middleware.ProvideCommu
         let results = await CAD.query(query, [req.community])
         results = results[0]
         
-        let finishedResults = []
         for (const i in results) {
             results[i].weapons = []
             const weapon = await CAD.query(`SELECT * FROM firearms WHERE civilian_id = ?`, [results[i].id])
             if (weapon[0][0]) {
                 results[i].weapons[results[i].weapons.length] = weapon[0][0]
-                finishedResults[finishedResults.length] = results[i]
             }
         }
-
-        res.status(200).json(finishedResults)
+        res.status(200).json(results)
     }
 })
 
