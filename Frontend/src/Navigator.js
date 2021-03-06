@@ -14,6 +14,7 @@ import Codes from './pages/Codes';
 import DMV from "./pages/DMV";
 import Dashboard from "./pages/Dashboard";
 import Database from './pages/Database'
+import {Helmet} from "react-helmet";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import MDT from './pages/MDT';
@@ -47,39 +48,47 @@ export default function Navigator() {
                 />
                 <Switch>
                     <Route path="/login">
+                        {CreateMeta('Login', '/login')}
                         <Login />
                     </Route>
                     <Route path="/dashboard">
+                        {CreateMeta('Dashboard', '/dashboard')}
                         <Dashboard />
                     </Route>
                     <Route path="/civilians">
+                    {CreateMeta('Civilian Manager', '/civilians')}
                         <Civilians />
                     </Route>
                     <Route path="/dmv">
+                    {CreateMeta('Vehicle Manager', '/dmv')}
                         <DMV />
                     </Route>
                     <Route path="/atf">
+                    {CreateMeta('Weapon Manager', '/atf')}
                         <ATF />
                     </Route>
                     <Route path="/cad">
+                    {CreateMeta('CAD', '/cad')}
                         <CAD />
                     </Route>
                     <Route path="/mdt">
+                        {CreateMeta('MDT', '/mdt')}
                         <MDT />
                     </Route>
                     <Route path="/settings">
+                      {CreateMeta('Settings', '/settings')}
                         <Settings />
                     </Route>
                     <Route path="/database">
+                      {CreateMeta('Database', '/database')}
                         <Database />
                     </Route>
                     <Route path="/codes">
+                      {CreateMeta('10-Codes', '/codes')}
                         <Codes />
                     </Route>
-                    <Route path="/auth">
-                        <h3>Found Cookie: {localStorage.getItem('cookie')}</h3>
-                    </Route>
                     <Route path="/manager">
+                        {CreateMeta('Titanium Manager', '/manager')}
                         <Manager />
                     </Route>
                     <Route path="/">
@@ -136,4 +145,34 @@ function Manager() {
             </Route>
         </Switch>
     );
+}
+
+//Meta Tags
+function CreateMeta(title, path) {
+    const description = 'TitaniumCAD is a powerful CAD/MDT system for roleplay gaming communities. The system allows for multiple civilians, vehicle/weapon management, and even more!'
+    return (
+        <Helmet>
+
+            {/* Charset */}
+            <meta charset="UTF-8" />
+
+            {/* Normal Meta */}
+            <title>{title + ' | Titanium CAD'}</title>
+            <meta name="description" content={description} />
+            <meta name="keywords" content="CAD, MDT, Roleplay, FiveM, GMod, Civilian, Vehicle, Weapon, Registration, Cheap" />
+            <meta name="author" content="Titanium Development" />
+
+            {/* Open Graph Protocol*/}
+            <meta property="og:title" content={title + ' | Titanium CAD'} />
+            <meta property="og:description" content={description} />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={`https://www.titaniumcad.com${path}`} />
+            <meta property="og:image" content="https://titaniumcad.com/TitaniumCAD.png" />
+            <meta property="og:image" content="https://titaniumcad.com/home/assets/img/screenshot-1-cad-system.JPG" />
+            
+            {/* Viewport */}
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            
+        </Helmet>
+    )
 }
