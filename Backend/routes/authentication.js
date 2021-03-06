@@ -454,13 +454,14 @@ async function VerifyEmail(code, res) {
             await CAD.query(`UPDATE users SET verified = true WHERE id = ?`, [person.user_id])
             await CAD.query(`DELETE FROM verification WHERE user_id = ?`, [person.user_id])
             // res.status(200).send('User Account Verified')
-            res.redirect(process.env.FRONTEND_URL)
+            res.redirect(process.env.FRONTEND_URL + '/manager/login')
             return
         }
         if (person.member_id) {
             await CAD.query(`UPDATE members SET verified = true WHERE id = ?`, [person.member_id])
             await CAD.query(`DELETE FROM verification WHERE member_id = ?`, [person.member_id])
-            res.status(200).send('Member Account Verified')
+            // res.status(200).send('Member Account Verified')
+            res.redirect(process.env.FRONTEND_URL + '/login')
             return
         }
     }
