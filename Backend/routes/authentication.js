@@ -100,7 +100,7 @@ router.post('/login', ratelimits.loginLimit1, ratelimits.loginLimit2, async (req
         }
     }
 
-    const { cookie, expiration } = await Login(email, password, community_id, req.ip)
+    const { cookie, expiration } = await Login(email, password, community_id, req.ipInfo.ip)
     
     if (cookie) {
         if (cookie == 'VERIFY') {

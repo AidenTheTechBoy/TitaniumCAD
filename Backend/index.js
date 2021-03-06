@@ -2,12 +2,15 @@
 require('dotenv').config()
 
 //Imports
-//const eventLoopStats = require('event-loop-stats')
 const rateLimit = require('express-rate-limit')
 const bodyParser = require('body-parser')
 const express = require('express')
 const cors = require('cors')
 const app = express()
+
+//IP Recording
+const expressip = require('express-ip');
+app.use(expressip().getIpInfoMiddleware);
 
 //Active Status Monitor
 app.use(require('express-status-monitor')())
