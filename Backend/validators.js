@@ -7,7 +7,8 @@ niv.extendMessages({
     required: 'The :attribute field must not be empty.',
     minLength: 'The :attribute field must be at least :arg0 characters!',
     maxLength: 'The :attribute field may not be more than :arg0 characters!',
-    regex: 'You must use at least one number in your password!'
+    regex: 'You must use at least one number in your password!',
+    alpha: 'The :attribute field can only contain non-numeric characters.'
 }, 'en');
 
 class Validators {
@@ -22,17 +23,17 @@ class Validators {
     //Civilian
     static async ValidateCivilian(res, data) {
         return await ReturnValidation(res, data, {
-            'first_name': ["required", ["maxLength", "30"]],
-            'last_name': ["required", ["maxLength", "30"]],
-            'middle_initial': [["maxLength", "1"]],
+            'first_name': ["required", "alpha", ["maxLength", "30"]],
+            'last_name': ["required", "alphaDash", ["maxLength", "30"]],
+            'middle_initial': ["alpha", ["maxLength", "1"]],
             'date_of_birth': ["required", ["dateFormat", "MM/DD/YYYY"]],
-            'place_of_residence': [["maxLength", "50"]],
-            'zip_code': [["maxLength", "10"]],
-            'occupation': [["maxLength", "50"]],
-            'height': [["maxLength", "10"]],
-            'weight': [["maxLength", "10"]],
-            'hair_color': [["maxLength", "15"]],
-            'eye_color': [["maxLength", "15"]],
+            'place_of_residence': ["alphaNumeric", ["maxLength", "50"]],
+            'zip_code': ["alphaNumeric", ["maxLength", "10"]],
+            'occupation': ["alpha", ["maxLength", "50"]],
+            'height': ["ascii", ["maxLength", "10"]],
+            'weight': ["alphaNumeric", ["maxLength", "10"]],
+            'hair_color': ["alpha", ["maxLength", "15"]],
+            'eye_color': ["alpha", ["maxLength", "15"]],
             'license_type': [["maxLength", "20"]],
             'license_expiration': [["maxLength", "20"]],
             'license_status': [["maxLength", "20"]]
@@ -42,9 +43,9 @@ class Validators {
     //Firearm
     static async ValidateVehicle(res, data) {
         return await ReturnValidation(res, data, {
-            'plate': ["required", ["maxLength", "10"]],
-            'color': ["required", ["maxLength", "20"]],
-            'make': ["required", ["maxLength", "30"]],
+            'plate': ["required", "alphaNumeric", ["maxLength", "10"]],
+            'color': ["required", "alpha", ["maxLength", "20"]],
+            'make': ["required", "alpha", ["maxLength", "30"]],
             'model': ["required", ["maxLength", "30"]],
             'year': ["required", ["dateFormat", "YYYY"]],
             'registration': [

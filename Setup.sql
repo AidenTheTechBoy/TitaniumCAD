@@ -174,7 +174,7 @@ CREATE TABLE `codes` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `community_id` INT NOT NULL,
     `code` VARCHAR(10),
-    `meaning` VARCHAR(30),
+    `meaning` VARCHAR(50),
     PRIMARY KEY (`id`)
 );
 
