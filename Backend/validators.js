@@ -6,7 +6,8 @@ niv.bailable(false)
 niv.extendMessages({
     required: 'The :attribute field must not be empty.',
     minLength: 'The :attribute field must be at least :arg0 characters!',
-    maxLength: 'The :attribute field may not be more than :arg0 characters!'
+    maxLength: 'The :attribute field may not be more than :arg0 characters!',
+    regex: 'You must use at least one number in your password!'
 }, 'en');
 
 class Validators {
@@ -14,7 +15,7 @@ class Validators {
     //Password
     static async ValidatePassword(res, data) {
         return await ReturnValidation(res, data, {
-            'password': ["required","ascii", ["minLength", "5"], ["maxLength", "30"]],
+            'password': ["required", "ascii", ["regex", ".*[0-9].*"], ["minLength", "7"], ["maxLength", "30"]],
         })
     }
 
