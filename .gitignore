@@ -2,4 +2,4 @@
 *.env
 .vscode
 .eslintcache
-/Backend/routes/public/
+/Backend/routes/public/img/*
