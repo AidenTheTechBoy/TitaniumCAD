@@ -43,13 +43,6 @@ app.use("/", rateLimit({
     max: 10000
 }))
 
-let num = 1
-app.use("/", async function (req, res, next) {
-    console.log(num + ' -> ' + req.originalUrl)
-    num++
-    next()
-})
-
 // User Authentication
 const { authRoutes } = require('./routes/authentication')
 app.use('/', authRoutes)
