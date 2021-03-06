@@ -9,12 +9,9 @@ aws.config.update({
     region: 'us-east-2'
 })
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // TEMP FLAG - REMOVE BEFORE RELEASE
-
 var lastSent = {}
 async function SendEmail(email, subject, text, html) {
 
-    console.log(lastSent)
     if (!lastSent[email] || lastSent[email] < Date.now() - 300000) { // 5 min delay
 
         let transporter = nodemailer.createTransport({
@@ -33,8 +30,6 @@ async function SendEmail(email, subject, text, html) {
 
         lastSent[email] = Date.now()
         
-        console.log('email sent')
-        console.log(info)
         return 'Email Sent'
 
     }
