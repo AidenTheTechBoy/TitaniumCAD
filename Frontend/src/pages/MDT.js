@@ -196,7 +196,7 @@ export default class MDT extends React.Component {
                         {/* Callsign */}
                         <div className='login-input-group'>
                             <label className='login-input-prompt'>Callsign:</label>
-                            <input type='text' name='callsign' htmlFor='callsign' className='login-input' onChange={(e) => {
+                            <input autoComplete='off' type='text' name='callsign' htmlFor='callsign' className='login-input' onChange={(e) => {
                                 this.setState({callsign: e.target.value})
                             }}/>
                         </div>
@@ -204,7 +204,7 @@ export default class MDT extends React.Component {
                         {/* Name */}
                         <div className='login-input-group'>
                             <label className='login-input-prompt'>Name:</label>
-                            <input type='text' name='name' htmlFor='name' className='login-input' onChange={(e) => {
+                            <input autoComplete='off' type='text' name='name' htmlFor='name' className='login-input' onChange={(e) => {
                                 this.setState({name: e.target.value})
                             }}/>
                         </div>
@@ -212,7 +212,7 @@ export default class MDT extends React.Component {
                         {/* In-Game ID */}
                         <div className='login-input-group'>
                             <label className='login-input-prompt'>In-Game ID:</label>
-                            <input type='number' name='name' htmlFor='name' className='login-input' onChange={async (e) => {
+                            <input autoComplete='off' type='number' name='name' htmlFor='name' className='login-input' onChange={async (e) => {
                                 this.setState({ingame_id: e.target.value})
                             }}/>
                         </div>
@@ -822,7 +822,7 @@ export default class MDT extends React.Component {
                 <div>
                     <p>{placeholder}</p>
                 </div>
-                <input type='text' disabled={true} value={this.state[variable]}/>
+                <input autoComplete='off' type='text' disabled={true} value={this.state[variable]}/>
             </div>
         )
     }

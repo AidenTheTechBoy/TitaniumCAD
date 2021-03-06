@@ -152,7 +152,7 @@ export default class Login extends React.Component {
                     {/* Email */}
                     <div className='login-input-group'>
                         <label className='login-input-prompt'>Email:</label>
-                        <input type='text' name='email' htmlFor='email' className='login-input' onChange={(e) => {
+                        <input autoComplete={this.state.register ? 'off' : 'on'} type='text' name='email' htmlFor='email' className='login-input' onChange={(e) => {
                             this.setState({email: e.target.value})
                         }}/>
                     </div>
@@ -160,7 +160,7 @@ export default class Login extends React.Component {
                     {/* Username */}
                     {this.state.register ? (<div className='login-input-group'>
                         <label className='login-input-prompt'>Username:</label>
-                        <input type='text' name='username' htmlFor='username' className='login-input' onChange={(e) => {
+                        <input autoComplete='off' type='text' name='username' htmlFor='username' className='login-input' onChange={(e) => {
                             this.setState({username: e.target.value})
                         }}/>
                     </div>) : (null)}
@@ -168,7 +168,7 @@ export default class Login extends React.Component {
                     {/* Password */}
                     <div className='login-input-group'>
                         <label className='login-input-prompt'>Password:</label>
-                        <input type='password' name='password' htmlFor='password' className='login-input' onChange={(e) => {
+                        <input autoComplete={this.state.register ? 'new-password' : 'current-password'} type='password' name='password' htmlFor='password' className='login-input' onChange={(e) => {
                             this.setState({password: e.target.value})
                         }}/>
                     </div>

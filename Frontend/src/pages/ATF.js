@@ -316,7 +316,7 @@ export default class ATF extends React.Component {
                 <div className='popup-input-prompt'>
                     <p>{label}</p>
                 </div>
-                <input className='popup-input' type='text' defaultValue={defaultValue} onChange={(e) => {
+                <input autoComplete='off' className='popup-input' type='text' defaultValue={defaultValue} onChange={(e) => {
                     this.setState({[variableName]: e.target.value})
                 }}/>
             </div>

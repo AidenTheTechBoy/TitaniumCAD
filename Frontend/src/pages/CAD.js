@@ -1027,7 +1027,7 @@ export default class CAD extends React.Component {
                 <div>
                     <p>{placeholder}</p>
                 </div>
-                <input type='text' value={this.state[variable]} onChange={(e) => {
+                <input autoComplete='off' type='text' value={this.state[variable]} onChange={(e) => {
                     this.setState({[variable]: e.target.value})
                 }}/>
             </div>

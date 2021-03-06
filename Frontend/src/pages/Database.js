@@ -39,7 +39,7 @@ export default class Database extends React.Component {
                         {/* First Name Field */}
                         <div className='cad-editor-cell' style={{flex: 5}}>
                             <div><p>First Name</p></div>
-                            <input type='text' value={this.state.first_name} onChange={(e) => {
+                            <input autoComplete='off' type='text' value={this.state.first_name} onChange={(e) => {
                                 this.setState({first_name: e.target.value})
                             }}/>
                         </div>
@@ -47,7 +47,7 @@ export default class Database extends React.Component {
                         {/* Last Name Field */}
                         <div className='cad-editor-cell' style={{flex: 5}}>
                             <div><p>Last Name</p></div>
-                            <input type='text' value={this.state.last_name} onChange={(e) => {
+                            <input autoComplete='off' type='text' value={this.state.last_name} onChange={(e) => {
                                 this.setState({last_name: e.target.value})
                             }}/>
                         </div>
@@ -55,7 +55,7 @@ export default class Database extends React.Component {
                         {/* Date of Birth Field */}
                         <div className='cad-editor-cell' style={{flex: 3}}>
                             <div><p>DOB</p></div>
-                            <input type='text' value={this.state.dob} onChange={(e) => {
+                            <input autoComplete='off' type='text' value={this.state.dob} onChange={(e) => {
                                 this.setState({dob: e.target.value})
                             }}/>
                         </div>
@@ -67,7 +67,7 @@ export default class Database extends React.Component {
                             {/* Make */}
                             <div className='cad-editor-cell' style={{flex: 5}}>
                                 <div><p>Make</p></div>
-                                <input type='text' value={this.state.make} onChange={(e) => {
+                                <input autoComplete='off' type='text' value={this.state.make} onChange={(e) => {
                                     this.setState({make: e.target.value})
                                 }}/>
                             </div>
@@ -75,7 +75,7 @@ export default class Database extends React.Component {
                             {/* Model */}
                             <div className='cad-editor-cell' style={{flex: 5}}>
                                 <div><p>Model</p></div>
-                                <input type='text' value={this.state.model} onChange={(e) => {
+                                <input autoComplete='off' type='text' value={this.state.model} onChange={(e) => {
                                     this.setState({model: e.target.value})
                                 }}/>
                             </div>
@@ -83,7 +83,7 @@ export default class Database extends React.Component {
                             {/* Year */}
                             <div className='cad-editor-cell' style={{flex: 3}}>
                                 <div><p>Year</p></div>
-                                <input type='text' value={this.state.year} onChange={(e) => {
+                                <input autoComplete='off' type='text' value={this.state.year} onChange={(e) => {
                                     this.setState({year: e.target.value})
                                 }}/>
                             </div>
@@ -92,7 +92,7 @@ export default class Database extends React.Component {
                             {/* Plate */}
                             <div className='cad-editor-cell' style={{flex: 3}}>
                                 <div><p>License Plate</p></div>
-                                <input type='text' value={this.state.plate} onChange={(e) => {
+                                <input autoComplete='off' type='text' value={this.state.plate} onChange={(e) => {
                                     this.setState({plate: e.target.value})
                                 }}/>
                             </div>
@@ -100,7 +100,7 @@ export default class Database extends React.Component {
                             {/* Color */}
                             <div className='cad-editor-cell' style={{flex: 3}}>
                                 <div><p>Color</p></div>
-                                <input type='text' value={this.state.color} onChange={(e) => {
+                                <input autoComplete='off' type='text' value={this.state.color} onChange={(e) => {
                                     this.setState({color: e.target.value})
                                 }}/>
                             </div>
