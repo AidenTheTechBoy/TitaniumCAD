@@ -140,7 +140,7 @@ export default class Login extends React.Component {
         return (
             <div>
                 
-                <div class="background-image"></div>
+                <div className="background-image"></div>
 
                 {/* Login Form */}
                 <div className='login-form'>

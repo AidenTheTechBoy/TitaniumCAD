@@ -73,7 +73,7 @@ export default class Dashboard extends React.Component {
                 
                 {
                     this.state.permissions.permission_civilian ?
-                    <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
+                    <div id='dash-msg' className='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
                         <h3 className='dashboard-message-header'>Server Message</h3>
                         <p className='dashboard-message-body'>{this.state.settings ? this.state.settings.dashboard_message : 'Loading...'}</p>
                     </div>
@@ -138,7 +138,7 @@ export default class Dashboard extends React.Component {
                     </div>
                     :
                     <div>
-                    <div id='dash-msg' class='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
+                    <div id='dash-msg' className='dashboard-message' style={{width: this.state.width > 480 ? (Math.floor(this.state.width / 240) * 240 - 60) : this.state.width - 60 }}>
                         <h3 className='dashboard-message-header'>No Permissions!</h3>
                         <p className='dashboard-message-body'>
                         You currently do not have any permissions in the CAD.

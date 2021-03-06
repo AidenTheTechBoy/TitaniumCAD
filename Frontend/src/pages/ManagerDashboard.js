@@ -113,7 +113,7 @@ export default class ManagerDashboard extends React.Component {
                             </div>
                         </div>
 
-                        <p class='m-dashboard-error'>{this.state.error_message}</p>
+                        <p className='m-dashboard-error'>{this.state.error_message}</p>
 
                         <div className='m-dashboard-button' style={{marginLeft: '20px', marginRight: '20px', paddingTop: '15px', paddingBottom: '15px', marginBottom: 0, marginTop: '15px'}} onClick={async () => {
                             try {
