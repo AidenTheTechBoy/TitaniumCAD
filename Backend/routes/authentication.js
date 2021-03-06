@@ -319,6 +319,13 @@ async function Login(email, password, community_id, ip) {
             if (passwordValid) {
                 if (!member.verified) {
 
+                    //Check Outstanding Verification
+                    const outstandVerification = await CAD.query(`SELECT * FROM verification WHERE member_id = ? AND expiration > ?`, [member.id, Date.now()])
+                    if (outstandVerification[0].length > 0) {
+                        console.log('Existing verification exists! Use already sent email!')
+                        return {cookie: 'VERIFY', expiration: null}
+                    }
+
                     //Remove Existing Verification Links
                     await CAD.query(`DELETE FROM verification WHERE member_id = ?`, [member.id])
 
