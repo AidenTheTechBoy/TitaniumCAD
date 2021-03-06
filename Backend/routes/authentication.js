@@ -9,14 +9,11 @@ const Cookies = require('cookies')
 // Internal Resources
 const emailer = require('../emailer');
 const ratelimits = require('../ratelimits')
+const Validators = require('../validators');
+const Shared = require('../shared')
 
 // Database Connection
-const CAD = mysql.createConnection({
-    host: process.env.SQL_HOST,
-    user: process.env.SQL_USER,
-    password: process.env.SQL_PASSWORD,
-    database: 'cad',
-}).promise()
+const CAD = Shared.CAD
 
 // Regex
 const EMAIL_REGEX = new RegExp("\\b[\\w\\.-]+@[\\w\\.-]+\\.\\w{2,4}\\b")
@@ -60,10 +57,9 @@ router.post('/register', ratelimits.createLimit1, ratelimits.createLimit2, async
         return
     }
 
-    if (!PASSWORD_REGEX.test(password)) {
-        res.status(400).send('Password does not meet requirements!')
-        return
-    }
+    // Stop if Validation Fails
+    const valid = await Validators.ValidatePassword(res, {password: password})
+    if (!valid) return
 
     if (await IsEmailUsed(email, community_id)) {
         res.status(400).send('The specified email is already being used!')

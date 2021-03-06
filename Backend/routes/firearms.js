@@ -5,15 +5,11 @@ const authentication = require('./authentication')
 const middleware = require('../middleware')
 const { Permission } = require('../permissions')
 const Shared = require('../shared')
+const Validator = require('../validators')
+const Validators = require('../validators')
 
 
-
-const CAD = mysql.createConnection({
-    host: process.env.SQL_HOST,
-    user: process.env.SQL_USER,
-    password: process.env.SQL_PASSWORD,
-    database: 'cad',
-}).promise()
+const CAD = Shared.CAD
 
 const DATE_OF_BIRTH = new RegExp(`^(0[1-9]|1[0-2])\\/(0[1-9]|1\\d|2\\d|3[0-1])\\/(1900|19\\d{2}|200[0-3])$`)
 
@@ -26,15 +22,9 @@ router.post('/firearms/add', middleware.LoggedInMember, middleware.ProvideCommun
     const name = req.body.name
     const registration = req.body.registration
     
-    if (!name || !registration) {
-        res.status(400).send('The required data was not provided.')
-        return
-    }
-
-    if (!Shared.ValidateEntry(registration, ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'])) {
-        res.status(400).send('Entry failed data validation.')
-        return
-    }
+    // Stop if Validation Fails
+    const valid = await Validators.ValidateFirearm(res, {name: name, registration: registration})
+    if (!valid) return
     
     CAD.query(
         `INSERT INTO firearms (community_id, civilian_id, name, registration) VALUES (?, ?, ?, ?)`, 
@@ -55,15 +45,12 @@ router.post('/firearms/edit', middleware.LoggedInMember, middleware.ProvideCommu
         'registration': req.body.registration,
     }
 
+    // Stop if Validation Fails
+    const valid = await Validators.ValidateFirearm(res, ValuesToChange)
+    if (!valid) return
+
     for (let key in ValuesToChange) {
         if (ValuesToChange[key]) {
-            
-            if (key === 'registration') {
-                if (!Shared.ValidateEntry(ValuesToChange[key], ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'])) {
-                    continue
-                }
-            }
-
             CAD.query(
                 `UPDATE firearms SET ${key} = ? WHERE id = ? AND community_id = ? AND civilian_id = ?`,
                 [ValuesToChange[key], firearmID, req.community, req.civilian]

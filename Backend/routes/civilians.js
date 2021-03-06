@@ -5,17 +5,12 @@ const authentication = require('./authentication')
 const middleware = require('../middleware')
 const { fill } = require('mysql2/lib/constants/charset_encodings')
 const { Permission } = require('../permissions')
+const Validators = require('../validators')
+const Shared = require('../shared')
 
 
 
-
-
-const CAD = mysql.createConnection({
-    host: process.env.SQL_HOST,
-    user: process.env.SQL_USER,
-    password: process.env.SQL_PASSWORD,
-    database: 'cad',
-}).promise()
+const CAD = Shared.CAD
 
 const DATE_OF_BIRTH = new RegExp(`^(0[1-9]|1[0-2])\\/(0[1-9]|1\\d|2\\d|3[0-1])\\/(1900|19\\d{2}|200[0-3])$`)
 
@@ -34,7 +29,7 @@ router.post('/civilians/add', middleware.LoggedInMember, middleware.ProvideCommu
         'zip_code': req.body.zip_code,
         'occupation': req.body.occupation,
         'height': req.body.height,
-        'weight':req.body.weight,
+        'weight': req.body.weight,
         'hair_color': req.body.hair_color,
         'eye_color': req.body.eye_color,
         'license_type': req.body.license_type,
@@ -42,15 +37,9 @@ router.post('/civilians/add', middleware.LoggedInMember, middleware.ProvideCommu
         'license_status': req.body.license_status
     }
 
-    if (!values.first_name || !values.last_name || !values.date_of_birth) {
-        res.status(400).send('You must at least provide a full name and date of birth.')
-        return
-    }
-
-    if (!DATE_OF_BIRTH.test(values.date_of_birth)) {
-        res.status(400).send('Provide a valid date of birth such as 02/23/1997.')
-        return
-    }
+    // Stop if Validation Fails
+    const valid = await Validators.ValidateCivilian(res, values)
+    if (!valid) return
 
     let propertiesToChange = ['community_id', 'member_id']
     let fill_values = [req.community, req.member]
@@ -60,8 +49,6 @@ router.post('/civilians/add', middleware.LoggedInMember, middleware.ProvideCommu
             fill_values[fill_values.length] = mysql.escape(values[key])
         }
     }
-
-    console.log(`INSERT INTO civilians (${propertiesToChange.join(', ')}) VALUES (${fill_values.join(', ')})`)
 
     await CAD.query(
         `INSERT INTO civilians (${propertiesToChange.join(', ')}) VALUES (${fill_values.join(', ')})`
@@ -94,15 +81,12 @@ router.post('/civilians/edit', middleware.LoggedInMember, middleware.ProvideComm
         'license_status': req.body.license_status
     }
 
+    // Stop if Validation Fails
+    const valid = await Validators.ValidateCivilian(res, ValuesToChange)
+    if (!valid) return
+
     for (let key in ValuesToChange) {
         if (ValuesToChange[key]) {
-            if (key == 'date_of_birth') {
-                if (!DATE_OF_BIRTH.test(ValuesToChange[key])) {
-                    res.status(400).send('Provide a valid date of birth such as 02/23/1997.')
-                    return
-                }
-            }
-
             CAD.query(
                 `UPDATE civilians SET ${key} = ? WHERE id = ? AND community_id = ? AND member_id = ?`,
                 [ValuesToChange[key], civilianID, req.community, req.member]
@@ -130,7 +114,6 @@ router.post('/civilians/delete', middleware.LoggedInMember, middleware.ProvideCo
     }
 
     res.status(400).send('Unable to find a civilian with the data provided.')
-
 })
 
 module.exports = {}

@@ -5,15 +5,9 @@ const authentication = require('./authentication')
 const middleware = require('../middleware')
 const { request } = require('express')
 const crypto = require('crypto-random-string')
+const Shared = require('../shared')
 
-
-
-const CAD = mysql.createConnection({
-    host: process.env.SQL_HOST,
-    user: process.env.SQL_USER,
-    password: process.env.SQL_PASSWORD,
-    database: 'cad',
-}).promise()
+const CAD = Shared.CAD
 
 router.post('/communities/check', async(req, res) => {
     const communities = await CAD.query(`SELECT id, name, access_code, status FROM communities WHERE access_code = ?`, [req.body.access_code])

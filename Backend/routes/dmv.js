@@ -5,15 +5,11 @@ const authentication = require('./authentication')
 const middleware = require('../middleware')
 const { Permission } = require('../permissions')
 const Shared = require('../shared')
+const Validators = require('../validators')
 
 
 
-const CAD = mysql.createConnection({
-    host: process.env.SQL_HOST,
-    user: process.env.SQL_USER,
-    password: process.env.SQL_PASSWORD,
-    database: 'cad',
-}).promise()
+const CAD = Shared.CAD
 
 const DATE_OF_BIRTH = new RegExp(`^(0[1-9]|1[0-2])\\/(0[1-9]|1\\d|2\\d|3[0-1])\\/(1900|19\\d{2}|200[0-3])$`)
 
@@ -31,19 +27,18 @@ router.post('/dmv/add', middleware.LoggedInMember, middleware.ProvideCommunity, 
     const registration = req.body.registration
     const insurance = req.body.insurance
     
-    if (!plate || !color || !make || !model || !year || !registration || !insurance) {
-        res.status(400).send('The required data was not provided.')
-        return
-    }
+    // Stop if Validation Fails
+    const valid = await Validators.ValidateVehicle(res, {
+        plate: plate,
+        color: color,
+        make: make,
+        model: model,
+        year: year,
+        registration: registration,
+        insurance: insurance
+    })
+    if (!valid) return
 
-    if (!Shared.ValidateMultiple( [registration, insurance], [
-        ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'],
-        ['VALID', 'EXPIRED', 'UNINSURED'] 
-    ])) {
-        res.status(400).send('Entry failed data validation.')
-        return
-    }
-    
     CAD.query(
         `INSERT INTO vehicles (community_id, civilian_id, plate, color, make, model, year, registration, insurance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
         [req.community, req.civilian, plate, color, make, model, year, registration, insurance]
@@ -68,21 +63,11 @@ router.post('/dmv/edit', middleware.LoggedInMember, middleware.ProvideCommunity,
         'insurance': req.body.insurance,
     }
 
+    const valid = await Validators.ValidateVehicle(res, ValuesToChange)
+    if (!valid) return
+
     for (let key in ValuesToChange) {
         if (ValuesToChange[key]) {
-            
-            if (key === 'registration') {
-                if (!Shared.ValidateEntry(ValuesToChange[key], ['VALID', 'EXPIRED', 'STOLEN', 'UNREGISTERED'])) {
-                    continue
-                }
-            }
-
-            if (key === 'insurance') {
-                if (!Shared.ValidateEntry(ValuesToChange[key], ['VALID', 'EXPIRED', 'UNINSURED'])) {
-                    continue
-                }
-            }
-
             CAD.query(
                 `UPDATE vehicles SET ${key} = ? WHERE id = ? AND community_id = ? AND civilian_id = ?`,
                 [ValuesToChange[key], vehicleID, req.community, req.civilian]
