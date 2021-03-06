@@ -54,6 +54,15 @@ async function GetMetadata(user_id) {
 
 //Create Checkout Session
 router.post('/create-checkout', middleware.LoggedInUser, async (req, res) => {
+
+    //Confirm User Has Server
+    const servers = await Shared.CAD.query(`SELECT id FROM communities WHERE user_id = ?`,[req.user])
+    if (!servers[0].length) {
+        res.status(403)
+        res.send('You must create a server before purchasing a premium plan!')
+        return
+    }
+
     //Get Customer ID
     const user = await Shared.CAD.query(`SELECT customer_id, subscription_id FROM users WHERE id = ?`,[req.user])
 
@@ -149,8 +158,17 @@ router.post('/checkSubscription', middleware.LoggedInUser, async (req, res) => {
 
 //Create Manager Session
 router.post('/getPlan', middleware.LoggedInUser, async (req, res) => {
+
     //Get Customer ID
-    let plan = (await Shared.CAD.query(`SELECT plan FROM communities WHERE user_id = ?`,[req.user]))[0][0].plan
+    let plan = (await Shared.CAD.query(`SELECT plan FROM communities WHERE user_id = ?`,[req.user]))[0]
+
+    if (!plan.length) {
+        res.status(200).json({message: `You do not currently own a server. To purchase a subscription, you first need to create a server!`})
+        return
+    }
+
+    plan = plan[0].plan
+
     res.status(200)
     if (plan == 1) {
         res.json({message: `You are currently paying $4.99/mo for Titanium Starter. To manage your plan, or cancel your subscription, use the button below.`})

@@ -194,11 +194,18 @@ export default class ManagerDashboard extends React.Component {
             return
         }
 
-        //Create Session
-        let req = await axios.post(Config.api + '/payments/create-checkout', {
-            cookie: localStorage.getItem('manager-cookie'),
-            package: pkg
-        })
+        let req = null
+        try {
+            //Create Session
+            req = await axios.post(Config.api + '/payments/create-checkout', {
+                cookie: localStorage.getItem('manager-cookie'),
+                package: pkg
+            })
+        }
+        catch (err) {
+            Config.toastFailure(err.response.data, 8000)
+            return
+        }
 
         //Get Session ID
         const session_id = req.data.session_id
