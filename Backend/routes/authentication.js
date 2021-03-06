@@ -159,7 +159,6 @@ router.get('/forgot-password', ratelimits.forgotPassword1, async (req, res) => {
             
             //TODO: Add IP to email
             const sentEmail = await emailer.SendEmail(email, 'Password Reset', `${process.env.BACKEND_URL}/reset-password?code=${code}`, `${process.env.BACKEND_URL}/reset-password?code=${code}`)
-            console.log(sentEmail)
 
             res.status(200).send('Password reset email sent!')
             return
@@ -177,7 +176,6 @@ router.get('/forgot-password', ratelimits.forgotPassword1, async (req, res) => {
             
             //TODO: Add IP to email
             const sentEmail = await emailer.SendEmail(email, 'Password Reset', `${process.env.BACKEND_URL}/reset-password?code=${code}`, `${process.env.BACKEND_URL}/reset-password?code=${code}`)
-            console.log(sentEmail)
 
             res.status(200).send('Password reset email sent!')
             return
@@ -322,7 +320,6 @@ async function Login(email, password, community_id, ip) {
                     //Check Outstanding Verification
                     const outstandVerification = await CAD.query(`SELECT * FROM verification WHERE member_id = ? AND expiration > ?`, [member.id, Date.now()])
                     if (outstandVerification[0].length > 0) {
-                        console.log('Existing verification exists! Use already sent email!')
                         return {cookie: 'VERIFY', expiration: null}
                     }
 
@@ -334,7 +331,6 @@ async function Login(email, password, community_id, ip) {
                     await CAD.query(`INSERT INTO verification (member_id, code, expiration) VALUES (?, ?, ?)`, [member.id, code, expiration])
 
                     const {name, access_code} = (await CAD.query(`SELECT name, access_code FROM communities WHERE id = ?`, [community_id]))[0][0]
-                    console.log(name, access_code)
 
                     const sentEmail = await emailer.SendEmail(
                         email,
