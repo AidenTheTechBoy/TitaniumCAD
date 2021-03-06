@@ -1,6 +1,6 @@
 import 'react-contexify/dist/ReactContexify.css'
 
-import { Item, Menu, Separator, Submenu, contextMenu, theme } from "react-contexify";
+import { Item, Menu, contextMenu, theme } from "react-contexify";
 import { faExternalLinkAlt, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 import Codes from './Codes';
