@@ -1,4 +1,5 @@
 const mysql = require('mysql2')
+const { Validator } = require('node-input-validator');
 
 class Shared {
 
@@ -51,6 +52,39 @@ class Shared {
         }
         return false
     }
+
+    /**
+     * Executes RCON on a FiveM Server
+     * @param {string} address FiveM server IP and port.
+     * @param {string} password RCON password.
+     * @param {string} command Command to execute via RCON.
+    */
+    // static async executeRCON(address, password, command) {
+
+    //     //Check IP
+    //     const validIP = new Validator({address: address}, {
+    //         address: ['ip']
+    //     })       
+        
+    //     //Only Continue With Real IP
+    //     if (await validIP.check()) {
+
+    //         //Prevent Injection
+    //         if (address.includes('192.168') || address.includes('local') || address.includes('10.0.0')) {
+    //             return
+    //         }
+
+    //         //Execute Command
+    //         exec(`${__dirname}/resources/icecon_linux_i386 --command "${command}" ${address} ${password}`, (error, stdout, stderr) => {
+    //             console.log(stdout)
+    //             if (error) {
+    //                 console.log(error)
+    //             } 
+    //         })
+
+    //     }
+
+    // }
 
 }
 

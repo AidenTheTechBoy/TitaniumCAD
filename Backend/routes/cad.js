@@ -5,7 +5,26 @@ const middleware = require('../middleware')
 const { CheckPermissions, Permission, PermissionsArray } = require('../permissions')
 const { CAD } = require('../shared')
 
+// router.post('/integration/data', middleware.ProvideSecret, async (req, res) => {
+//     let units = await CAD.query('SELECT * FROM units WHERE server_id = ?', [req.server])
+//     res.status(200).json(units[0])
+// })
 
+router.post('/integration', middleware.ProvideSecret, async (req, res) => {
+
+    // In: Update Unit Locations
+    if (req.body.locations) {
+        for (const i in req.body.locations) {
+            const unit = req.body.locations[i]
+            await CAD.query('UPDATE units SET location = ? WHERE server_id = ? and ingame_id = ?', [unit.location, req.server, unit.id])
+        }
+    }
+
+    // Out: Send Active Unit List
+    let units = await CAD.query('SELECT * FROM units WHERE server_id = ?', [req.server])
+    res.status(200).json(units[0])
+
+})
 
 router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
     if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {

@@ -86,4 +86,25 @@ const ProvideServerID = async function (req, res, next) {
     next()
 }
 
-module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID }
+const ProvideSecret = async function (req, res, next) {
+
+    //Get Secret
+    const secret = req.body.secret
+    if (!secret) {
+        res.status(400).send('A secret must be provided!')
+        return
+    }
+
+    //Get Server
+    const server = await CAD.query(`SELECT id FROM servers WHERE secret = ?`, [secret])
+    if (!server[0].length) {
+        res.status(403).send('No server found with that secret!')
+        return
+    }
+
+    req.server = server[0][0].id
+
+    next()
+}
+
+module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID, ProvideSecret}
