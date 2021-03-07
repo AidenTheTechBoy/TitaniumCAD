@@ -107,4 +107,78 @@ const ProvideSecret = async function (req, res, next) {
     next()
 }
 
-module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID, ProvideSecret}
+const GetPlanRestrictions = async function (req, res, next) {
+
+    if (!req.community) {
+        if (!req.server) {
+            res.status(400).send('No server or community provided! Unable to check plan.')
+            return
+        }
+        const community = await CAD.query(`SELECT community_id FROM servers WHERE id = ?`, [req.server])
+        req.community = community[0][0].community_id
+    }
+
+    // Select Plan
+    const plan = await CAD.query(`SELECT plan FROM communities WHERE id = ?`, [req.community])
+
+    // Add to Request
+    req.plan = plan[0][0].plan
+
+    // Find Restrictions
+    switch (req.plan) {
+        case 0:
+           req.restrictions = {
+            users: 50,
+            activeUnits: 3,
+            servers: 1,
+            departments: 3,
+            civilians: 2,
+            liveMap: false,
+            webhooks: 0,
+            customization: false,
+            }
+            break
+        case 1:
+            req.restrictions = {
+                users: -1,
+                activeUnits: 10,
+                servers: 1,
+                departments: 5,
+                civilians: 4,
+                liveMap: false,
+                webhooks: 1,
+                customization: false,
+            }
+            break
+        case 2:
+            req.restrictions = {
+                users: -1,
+                activeUnits: 15,
+                servers: 2,
+                departments: 8,
+                civilians: 8,
+                liveMap: true,
+                webhooks: 2,
+                customization: true,
+            }
+            break
+        case 3:
+            req.restrictions = {
+                users: -1,
+                activeUnits: -1,
+                servers: -1,
+                departments: -1,
+                civilians: -1,
+                liveMap: true,
+                webhooks: 2,
+                customization: true,
+            }
+            break
+    }
+
+    // Continue
+    next()
+
+}
+
+module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID, ProvideSecret, GetPlanRestrictions}

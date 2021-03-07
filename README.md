@@ -6,7 +6,7 @@ Roleplay CAD system created by Titanium Development.
 
 ### Free
 
-* 100 Total Users
+* 50 Total Users
 * 3 Active Units
 * 1 Server
 * Up to 3 Departments
@@ -18,7 +18,7 @@ Roleplay CAD system created by Titanium Development.
 ### $4.99/mo
 
 * Unlimited Users
-* 10 Active Units
+* 10 Active Units/Server
 * 1 Server
 * Up to 5 Departments
 * 4 Civilians Per Player
@@ -29,7 +29,7 @@ Roleplay CAD system created by Titanium Development.
 ### $9.99/mo
 
 * Unlimited Users
-* 20 Active Units
+* 15 Active Units/Server
 * 2 Servers
 * Up to 8 Departments
 * 8 Civilians Per Player

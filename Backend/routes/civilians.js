@@ -19,7 +19,16 @@ router.post('/civilians/list', middleware.LoggedInMember, middleware.ProvideComm
     res.status(200).json(data[0])
 })
 
-router.post('/civilians/add', middleware.LoggedInMember, middleware.ProvideCommunity, Permission.Civilian, async (req, res) => {
+router.post('/civilians/add', middleware.LoggedInMember, middleware.ProvideCommunity, middleware.GetPlanRestrictions, Permission.Civilian, async (req, res) => {
+    
+    let civCount = await CAD.query(`SELECT COUNT(id) AS civCount FROM civilians WHERE community_id = ? AND member_id = ?`, [req.community, req.member])
+    civCount = civCount[0][0].civCount
+
+    if (civCount >= req.restrictions.civilians && req.restrictions.civilians != -1) {
+        res.status(401).send(`You may only register ${req.restrictions.civilians} civilians with your current plan!`)
+        return
+    }
+    
     const values = {
         'first_name': req.body.first_name,
         'last_name': req.body.last_name,

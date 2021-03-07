@@ -26,7 +26,7 @@ router.post('/integration', middleware.ProvideSecret, async (req, res) => {
 
 })
 
-router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
+router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, middleware.GetPlanRestrictions, async (req, res) => {
     if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
         const ingame_id = req.body.ingame_id
         const name = req.body.name
@@ -40,6 +40,14 @@ router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, 
         //Remove Any Other Units by Member
         await CAD.query(`DELETE FROM units WHERE member_id = ?`, [req.member])
         
+        let unitCount = await CAD.query(`SELECT COUNT(member_id) AS unitsOnServer FROM units WHERE server_id = ?`, [req.server])
+        unitCount = unitCount[0][0].unitsOnServer
+
+        if (unitCount >= req.restrictions.activeUnits && req.restrictions.activeUnits != -1) {
+            res.status(401).send('Your server\'s current plan only allows for ' + req.restrictions.activeUnits + ' units on at once!')
+            return
+        }
+
         //Add Unit to CAD
         await CAD.query(`INSERT INTO units (server_id, member_id, ingame_id, callsign, name, status, last_update) VALUES (?, ?, ?, ?, ?, ?, ?)`, [req.server, req.member, ingame_id, callsign, name, 'AVAILABLE', Date.now()])
 

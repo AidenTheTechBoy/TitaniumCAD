@@ -72,13 +72,16 @@ router.post('/settings/regen-server-secret', middleware.LoggedInMember, middlewa
     res.status(200).send('Regenerated!')
 })
 
-router.post('/settings/add-server', middleware.LoggedInMember, middleware.ProvideCommunity, Permission.ManageServers, async(req, res) => {
+router.post('/settings/add-server', middleware.LoggedInMember, middleware.ProvideCommunity, Permission.ManageServers, middleware.GetPlanRestrictions, async(req, res) => {
     //Check Max Server Count
     const SERVERS = await Shared.CAD.query(`SELECT * FROM servers WHERE community_id = ?`, [req.community])
     const COMMUNITY = await Shared.CAD.query(`SELECT plan FROM communities WHERE id = ?`, [req.community])
-    const ALLOWED_SERVERS = Payments.SUBSCRIPTION_LIMITS[COMMUNITY[0][0].plan].MAX_SERVERS
-    if (SERVERS[0].length >= ALLOWED_SERVERS) {
-        res.status(403).send(`You may only register ${ALLOWED_SERVERS} with your current pricing plan!`)
+    const ALLOWED_SERVERS = req.restrictions.servers
+    
+    console.log(req.restrictions)
+    
+    if (SERVERS[0].length >= ALLOWED_SERVERS && ALLOWED_SERVERS != -1) {
+        res.status(401).send(`You may only register ${ALLOWED_SERVERS} server(s) with your current pricing plan!`)
         return
     }
 

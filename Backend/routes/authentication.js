@@ -32,14 +32,29 @@ router.post('/register', ratelimits.createLimit1, ratelimits.createLimit2, async
     const access_code = req.body.access_code
     
     let community_id = null
+    let community_plan = null
+
     if (access_code) {
-        let found = await CAD.query(`SELECT id FROM communities WHERE access_code = ?`, [access_code])
+        let found = await CAD.query(`SELECT id, plan FROM communities WHERE access_code = ?`, [access_code])
         if (found[0].length > 0) {
             community_id = found[0][0].id
+            community_plan = found[0][0].plan
         } else {
             res.status(400).send('No community was found with that access code.')
             return
         }
+
+        if (community_plan == 0) {
+
+            let memberCount = await CAD.query(`SELECT COUNT(id) AS memberCount FROM members WHERE community_id = ?`, [community_id])
+            memberCount = memberCount[0][0].memberCount
+
+            if (memberCount >= 50){
+                res.status(401).send('This server already has the maximum amount of allowed members for their plan! Tell them to upgrade if they want to allow more players to join!')
+                return
+            }
+        }
+
     }
 
     if (!email || !username || !password) {
