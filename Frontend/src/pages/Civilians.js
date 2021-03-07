@@ -19,7 +19,6 @@ export default class Civilians extends React.Component {
         this.state = {
             width: 0,
             height: 0,
-            error: '',
             civilians: [],
             civ_first_name: '',
             civ_last_name: '',
@@ -106,7 +105,6 @@ export default class Civilians extends React.Component {
                                         })
                                         document.getElementById('main-container').style.filter = "blur(20px)";
                                     }} onClose={() => {
-                                        this.setState({error: null})
                                         document.getElementById('main-container').style.filter = "none";
                                     }}>
                                         {close => (
@@ -144,7 +142,6 @@ export default class Civilians extends React.Component {
                                                         {this.PopupField('License Status', civilian.license_status, 'civ_license_status')}
                                                     </div>
                                                 </div>
-                                                <p className='popup-error-message'>{this.state.error}</p>
                                                 <div className='popup-button-group'>
                                                     <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
                                                         try {
@@ -172,7 +169,7 @@ export default class Civilians extends React.Component {
                                                             close()
                                                         }
                                                         catch (err) {
-                                                            this.setState({error: err.response.data.toUpperCase()})
+                                                            Config.toastFailure(err.response.data)
                                                         }
                                                     }}>Save Civilian</div>
                                                     <div className='popup-button' style={{backgroundColor: '#212026', marginLeft: '5px'}} onClick={() => {
@@ -219,7 +216,6 @@ export default class Civilians extends React.Component {
                     })
                     document.getElementById('main-container').style.filter = "blur(20px)";
                 }} onClose={() => {
-                    this.setState({error: null})
                     document.getElementById('main-container').style.filter = "none";
                 }}>
                     {close => (
@@ -246,7 +242,6 @@ export default class Civilians extends React.Component {
                                     {this.PopupField('License Status', null, 'civ_license_status')}
                                 </div>
                             </div>
-                            <p className='popup-error-message'>{this.state.error}</p>
                             <div className='popup-button-group'>
                                 <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
                                     try {
@@ -273,7 +268,7 @@ export default class Civilians extends React.Component {
                                         close()
                                     }
                                     catch (err) {
-                                        this.setState({error: err.response.data.toUpperCase()})
+                                        Config.toastFailure(err.response.data)
                                     }
                                 }}>Create Character</div>
                                 <div className='popup-button' style={{backgroundColor: '#212026', marginLeft: '5px'}} onClick={() => {

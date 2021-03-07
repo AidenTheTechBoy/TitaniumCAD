@@ -20,7 +20,6 @@ export default class ATF extends React.Component {
         this.state = {
             width: 0,
             height: 0,
-            error: '',
             civilians: '',
             weapons: [],
             civilian_id: '',
@@ -140,7 +139,6 @@ export default class ATF extends React.Component {
                                         })
                                         document.getElementById('main-container').style.filter = "blur(20px)";
                                     }} onClose={() => {
-                                        this.setState({error: null})
                                         document.getElementById('main-container').style.filter = "none";
                                     }}>
                                         {close => (
@@ -169,7 +167,6 @@ export default class ATF extends React.Component {
                                                         ])}
                                                     </div>
                                                 </div>
-                                                <p className='popup-error-message'>{this.state.error}</p>
                                                 <div className='popup-button-group'>
                                                     <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
                                                         try {
@@ -186,7 +183,7 @@ export default class ATF extends React.Component {
                                                             close()
                                                         }
                                                         catch (err) {
-                                                            this.setState({error: err.response.data.toUpperCase()})
+                                                            Config.toastFailure(err.response.data)
                                                         }
                                                     }}>Update Weapon</div>
                                                     <div className='popup-button' style={{backgroundColor: '#212026', marginLeft: '5px'}} onClick={() => {
@@ -224,7 +221,6 @@ export default class ATF extends React.Component {
                 <Popup trigger={this.state.civilian_id ? <Fab icon={'＋'} mainButtonStyles={{backgroundColor: '#34B3CE'}}/> : null} contentStyle={{padding: '20px', backgroundColor: '#111015', border: 'none', width: this.state.width > 1000 ? null : '90%'}} modal onOpen={() => {
                     document.getElementById('main-container').style.filter = "blur(20px)";
                 }} onClose={() => {
-                    this.setState({error: null})
                     document.getElementById('main-container').style.filter = "none";   
                 }}>
                     {close => (
@@ -241,7 +237,6 @@ export default class ATF extends React.Component {
                                     ])}
                                 </div>
                             </div>
-                            <p className='popup-error-message'>{this.state.error}</p>
                             <div className='popup-button-group'>
                                 <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
                                     try {
@@ -257,7 +252,7 @@ export default class ATF extends React.Component {
                                         close()
                                     }
                                     catch (err) {
-                                        this.setState({error: err.response.data.toUpperCase()})
+                                        Config.toastFailure(err.response.data)
                                     }
                                 }}>Add Weapon</div>
                                 <div className='popup-button' style={{backgroundColor: '#212026', marginLeft: '5px'}} onClick={() => {

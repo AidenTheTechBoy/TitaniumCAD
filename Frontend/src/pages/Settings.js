@@ -248,7 +248,6 @@ export default class Settings extends React.Component {
                                         })
                                         document.getElementById('main-container').style.filter = "blur(20px)";
                                     }} onClose={() => {
-                                        this.setState({error: null})
                                         document.getElementById('main-container').style.filter = "none";
                                     }}>
                                         {close => (
@@ -271,7 +270,6 @@ export default class Settings extends React.Component {
                                                         {this.PopupField('Server IP', 'server_ip', 2)}
                                                     </div>
                                                 </div>
-                                                <p className='popup-error-message'>{this.state.error}</p>
                                                 <div className='popup-button-group'>
                                                     <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
                                                         try {
@@ -287,7 +285,7 @@ export default class Settings extends React.Component {
                                                             close()
                                                         }
                                                         catch (err) {
-                                                            this.setState({error: err.response.data.toUpperCase()})
+                                                            Config.toastFailure(err.response.data)
                                                         }
                                                     }}>Update Server</div>
                                                     <div className='popup-button' style={{backgroundColor: '#212026', marginLeft: '5px'}} onClick={() => {
@@ -314,7 +312,6 @@ export default class Settings extends React.Component {
                     })
                     document.getElementById('main-container').style.filter = "blur(20px)";
                 }} onClose={() => {
-                    this.setState({error: null})
                     document.getElementById('main-container').style.filter = "none";
                 }}>
                     {close => (
@@ -326,7 +323,6 @@ export default class Settings extends React.Component {
                                     {this.PopupField('Server IP', 'server_ip', 2)}
                                 </div>
                             </div>
-                            <p className='popup-error-message'>{this.state.error}</p>
                             <div className='popup-button-group'>
                                 <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
                                     try {
@@ -341,7 +337,7 @@ export default class Settings extends React.Component {
                                         close()
                                     }
                                     catch (err) {
-                                        this.setState({error: err.response.data.toUpperCase()})
+                                        Config.toastFailure(err.response.data)
                                     }
                                 }}>Create Server</div>
                                 <div className='popup-button' style={{backgroundColor: '#212026', marginLeft: '5px'}} onClick={() => {

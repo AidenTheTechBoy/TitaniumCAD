@@ -15,7 +15,6 @@ export default class ManagerLogin extends React.Component {
             password: '',
             server_name: '',
             access_message: '',
-            error_message: '',
             register: false,
         }
 
@@ -34,13 +33,12 @@ export default class ManagerLogin extends React.Component {
                 })
                 if (req.data) {
                     this.setState({register: false})
-                    this.setState({error_message: ''})
                 }
                 Config.toastSuccess('Account created! You can now login!')
             }
             catch (err) {
                 if (err.response.data) {
-                    this.setState({error_message: err.response.data.toUpperCase()})
+                    Config.toastFailure(err.response.data, 5000)
                 }
                 
             }
@@ -61,7 +59,7 @@ export default class ManagerLogin extends React.Component {
         }
         catch (err) {
             if (err.response.data) {
-                this.setState({error_message: err.response.data.toUpperCase()})
+                Config.toastFailure(err.response.data, 5000)
             }
             
         }
@@ -106,7 +104,6 @@ export default class ManagerLogin extends React.Component {
                     </div>
     
                     {/* Login/Register */}
-                    <h4 className='login-error'>{this.state.error_message}</h4>
                     <div className='login-button' onClick={this.login}>{this.state.register ? 'REGISTER' : 'LOGIN'}</div>
                     <div className='login-register' onClick={() => this.setState({register: !this.state.register})}>OR <b>{this.state.register ? 'LOG IN TO EXISTING ACCOUNT' : 'CREATE AN ACCOUNT'}</b></div>
                 </div>

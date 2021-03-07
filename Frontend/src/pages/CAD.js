@@ -136,11 +136,11 @@ export default class CAD extends React.Component {
 
         //Get New CAD Data
         setInterval(async () => {
-            if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
+            // if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
                 this.updateData()
-                this.state.lastRequestCompletion = Date.now()
-            }
-        }, 1000)
+                // this.state.lastRequestCompletion = Date.now()
+            // }
+        }, 1)
 
     }
 
@@ -166,6 +166,7 @@ export default class CAD extends React.Component {
             singleValue: (provided, state) => ({
                 ...provided,
                 color: 'white',
+                textTransform: 'uppercase'
             }),
             control: (provided, state) => ({
                 ...provided,
@@ -184,6 +185,7 @@ export default class CAD extends React.Component {
                 ...provided,
                 color: 'white',
                 backgroundColor: isSelected ? '#34B3CE' : null,
+                textTransform: 'uppercase',
                 '&:hover': {
                     backgroundColor: '#111015'
                 }

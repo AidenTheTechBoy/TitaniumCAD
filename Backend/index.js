@@ -28,22 +28,32 @@ app.use(bodyParser.json({
 //Setup Cors
 app.use(cors())
 
-// 10 req / 5 second
+// 4 req / 2 second
 app.use("/", rateLimit({
-    windowMs: 1000,
-    max: 5
+    windowMs: 2000,
+    max: 3,
+    message: 'You are sending requests too quickly! Slow down!'
 }))
 
-// 200 req / 5 min
+// 15 req / 10 second
 app.use("/", rateLimit({
-    windowMs: 5 * 60 * 1000,
-    max: 1000
+    windowMs: 10000,
+    max: 15,
+    message: 'You are sending requests too quickly! Slow down!'
 }))
 
-// 10000 req / 1 Day
+// 100 req / 1 min
+app.use("/", rateLimit({
+    windowMs: 60 * 1000,
+    max: 50,
+    message: 'You are sending requests too quickly! Wait one minute!'
+}))
+
+// 30000 req / 1 Day
 app.use("/", rateLimit({
     windowMs: 24 * 60 * 60 * 1000,
-    max: 10000
+    max: 30000,
+    message: 'You hit the daily request limit, you will need to wait 24 hours to try again.'
 }))
 
 // User Authentication
