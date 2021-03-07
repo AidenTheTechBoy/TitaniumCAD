@@ -19,7 +19,7 @@ Roleplay CAD system created by Titanium Development.
 
 * Unlimited Users
 * 10 Active Units
-* 1 Servers
+* 1 Server
 * Up to 5 Departments
 * 4 Civilians Per Player
 * No Live Map Support
