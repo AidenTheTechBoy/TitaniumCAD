@@ -269,6 +269,9 @@ export default class Settings extends React.Component {
                                                         {this.PopupField('Server Name', 'server_name', 2)}
                                                         {this.PopupField('Server IP', 'server_ip', 2)}
                                                     </div>
+                                                    <div className='popup-row'>
+                                                        {this.PopupField('Secret', 'server_secret', 2, true)}
+                                                    </div>
                                                 </div>
                                                 <div className='popup-button-group'>
                                                     <div className='popup-button' style={{backgroundColor: '#34B3CE', flex: 2, marginRight: '5px'}} onClick={async () => {
@@ -587,13 +590,13 @@ export default class Settings extends React.Component {
         )
     }
 
-    PopupField(label, variableName) {
+    PopupField(label, variableName, _, disable = false) {
         return (
             <div className='popup-input-container' style={{minWidth: `200px`}}>
                 <div className='popup-input-prompt'>
                     <p>{label}</p>
                 </div>
-                <input className='popup-input' type='text' defaultValue={this.state[variableName]} onChange={(e) => {
+                <input disabled={disable} className='popup-input' type='text' defaultValue={this.state[variableName]} onChange={(e) => {
                     this.setState({[variableName]: e.target.value})
                 }}/>
             </div>
