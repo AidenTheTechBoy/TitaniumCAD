@@ -55,6 +55,13 @@ router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, 
     }
 })
 
+router.post('/offduty', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
+    if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
+        CAD.query(`DELETE FROM units WHERE member_id = ? AND server_id = ?`, [req.member, req.server])
+        res.status(200).send('You are now off duty!')
+    }
+})
+
 router.post('/get-unit', middleware.LoggedInMember, async (req, res) => {
     if (await PermissionsArray(req, res, ['DISPATCH', 'POLICE_MDT', 'FIRE_MDT'])) {
 

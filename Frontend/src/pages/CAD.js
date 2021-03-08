@@ -15,7 +15,7 @@ import Select from 'react-select'
 import axios from 'axios'
 
 export default class CAD extends React.Component {
-   
+
     constructor(props) {
         super(props)
         this.state = {
@@ -25,6 +25,7 @@ export default class CAD extends React.Component {
             '911': [],
             bolos: [],
             code_picker: [],
+            last_panic: [],
         }
     }
 
@@ -44,6 +45,7 @@ export default class CAD extends React.Component {
     }
 
     async updateData() {
+        
         if (!this.state.server_id) {
             return
         }
@@ -59,6 +61,24 @@ export default class CAD extends React.Component {
             codes[codes.length] = {label: `${code.code}: ${code.meaning}`, value: code.code}
         }
 
+        let panicList = []
+        for (let i in res.data.units) {
+            const unit = res.data.units[i]
+            if (unit.status === 'PANIC') {
+                panicList[panicList.length] = unit.member_id
+            }
+        }
+
+        const panicChanged = panicList.length > this.state.last_panic.length
+        const signalChanged = res.data.signal && res.data.signal !== this.state.signal
+
+        if (panicChanged || signalChanged) {
+            this.audio = new Audio('police_panic_button.mp3')
+            this.audio.loop = false
+            this.audio.load()
+            this.playAudio()
+        }
+
         this.setState({
             units: res.data.units,
             calls: res.data.calls,
@@ -67,7 +87,8 @@ export default class CAD extends React.Component {
             codes: res.data.codes,
             code_picker: codes,
             signal: res.data.signal,
-            lastRequestCompletion: Date.now()
+            lastRequestCompletion: Date.now(),
+            last_panic: panicList
         })
 
     }
@@ -136,12 +157,25 @@ export default class CAD extends React.Component {
 
         //Get New CAD Data
         setInterval(async () => {
-            // if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
+            if (Date.now() - this.state.lastRequestCompletion >  (document.hasFocus ? 5000 : 8000) ) {
                 this.updateData()
-                // this.state.lastRequestCompletion = Date.now()
-            // }
-        }, 1)
+                this.state.lastRequestCompletion = Date.now()
+            }
+        }, 1000)
+    }
 
+    playAudio() {
+        const audioPromise = this.audio.play()
+        if (audioPromise !== undefined) {
+          audioPromise
+            .then(_ => {
+              // autoplay started
+            })
+            .catch(err => {
+              // catch dom exception
+              console.info(err)
+            })
+        }
     }
 
     async updateServers() {
@@ -161,6 +195,7 @@ export default class CAD extends React.Component {
     }
 
     render() {
+
         //Server Selector Style
         const serverSelectorStyle = {
             singleValue: (provided, state) => ({
@@ -221,8 +256,10 @@ export default class CAD extends React.Component {
                 />
             )
         }
+
         return (
             <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+
                 { this.state.signal ?
                     <div style={{paddingVertical: 3, backgroundColor: this.state.panicColor, opacity: this.state.blinkOpacity}}>
                         <p style={{textAlign: 'center', fontSize: 15, color: 'white'}}>SIGNAL {this.state.signal} IS IN EFFECT</p>

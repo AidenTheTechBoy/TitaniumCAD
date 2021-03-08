@@ -27,6 +27,7 @@ export default class MDT extends React.Component {
             '911': [],
             bolos: [],
             code_picker: [],
+            last_panic: [],
         }
     }
 
@@ -55,12 +56,30 @@ export default class MDT extends React.Component {
         let res = await axios.post(Config.api + '/cad/current', {
             'cookie' : localStorage.getItem('cookie'),
             'server_id': this.state.server_id,
-        }, {timeout: 5000})
+        }, {timeout: 3000})
 
         let codes = []
         for (const i in res.data.codes) {
             const code = res.data.codes[i]
             codes[codes.length] = {label: `${code.code}: ${code.meaning}`, value: code.code}
+        }
+
+        let panicList = []
+        for (let i in res.data.units) {
+            const unit = res.data.units[i]
+            if (unit.status === 'PANIC') {
+                panicList[panicList.length] = unit.member_id
+            }
+        }
+
+        const panicChanged = panicList.length > this.state.last_panic.length
+        const signalChanged = res.data.signal && res.data.signal !== this.state.signal
+
+        if (panicChanged || signalChanged) {
+            this.audio = new Audio('police_panic_button.mp3')
+            this.audio.loop = false
+            this.audio.load()
+            this.playAudio()
         }
 
         this.setState({
@@ -71,9 +90,24 @@ export default class MDT extends React.Component {
             codes: res.data.codes,
             code_picker: codes,
             signal: res.data.signal,
-            lastRequestCompletion: Date.now()
+            lastRequestCompletion: Date.now(),
+            last_panic: panicList
         })
 
+    }
+
+    playAudio() {
+        const audioPromise = this.audio.play()
+        if (audioPromise !== undefined) {
+          audioPromise
+            .then(_ => {
+              // autoplay started
+            })
+            .catch(err => {
+              // catch dom exception
+              console.info(err)
+            })
+        }
     }
 
     async UpdateSelf() {
@@ -89,7 +123,6 @@ export default class MDT extends React.Component {
             'location': res.data.location,
             'status': res.data.status
         })
-        console.log(res.data)
     }
 
     componentDidMount() {
@@ -142,9 +175,18 @@ export default class MDT extends React.Component {
             access_code: localStorage.getItem('access_code'),
             server_id: this.state.server_id,
             status: status
-        })
+        }, {timeout: 3000})
         this.updateData()
         Config.toastSuccess('Your status has been updated.')
+    }
+
+    async GoOffduty() {
+        await axios.post(Config.api + '/cad/offduty', {
+            cookie: localStorage.getItem('cookie'),
+            access_code: localStorage.getItem('access_code'),
+            server_id: this.state.server_id,
+        })
+        window.location = '/dashboard'
     }
 
     render() {
@@ -372,12 +414,14 @@ export default class MDT extends React.Component {
                     <div className='cad-toolbar-button' style={{borderColor: '#f5e500'}} onClick={() => this.SelfStatus('BUSY')}>10-6</div>
                     <div className='cad-toolbar-button' style={{borderColor: '#34B3CE'}} onClick={() => this.SelfStatus('ENROUTE')}>10-97</div>
                     <div className='cad-toolbar-button' style={{borderColor: '#9700f5'}} onClick={() => this.SelfStatus('ONSCENE')}>10-23</div>
+                    <div className='cad-toolbar-button' style={{borderColor: this.state.status === 'PANIC' ? this.state.panicColor : '#fc0f03'}} onClick={() => this.SelfStatus('PANIC')}>PANIC</div>
                 </div>
                 <div className='cad-toolbar'>
                     <div className='cad-toolbar-button' onClick={() => this.setState({person_search: true})}>Person Lookup</div>
                     <div className='cad-toolbar-button' onClick={() => this.setState({vehicle_search: true})}>Vehicle Lookup</div>
                     <div className='cad-toolbar-button' onClick={() => this.setState({bolos_popup: !this.state.bolos_popup})}>Bolos</div>
                     <div className='cad-toolbar-button' onClick={() => this.setState({codes_popup: !this.state.codes_popup})}>10-Codes</div>
+                    <div className='cad-toolbar-button' style={{borderColor: '#fc7303'}} onClick={() => this.GoOffduty()}>Go Offduty</div>
                     <div className='cad-toolbar-button' style={{borderColor: '#fc0f03'}} onClick={() => window.location = '/dashboard'}>Exit</div>
                 </div>
                 <div className='cad-window'>

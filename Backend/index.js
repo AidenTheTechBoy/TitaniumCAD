@@ -28,17 +28,10 @@ app.use(bodyParser.json({
 //Setup Cors
 app.use(cors())
 
-// 4 req / 2 second
-app.use("/", rateLimit({
-    windowMs: 2000,
-    max: 3,
-    message: 'You are sending requests too quickly! Slow down!'
-}))
-
-// 15 req / 10 second
+// 40 req / 10 second
 app.use("/", rateLimit({
     windowMs: 10000,
-    max: 15,
+    max: 40,
     message: 'You are sending requests too quickly! Slow down!'
 }))
 
@@ -55,6 +48,14 @@ app.use("/", rateLimit({
     max: 30000,
     message: 'You hit the daily request limit, you will need to wait 24 hours to try again.'
 }))
+
+let count = 0
+const LogReq = async function (req, res, next) {
+    count++;
+    console.log(`Request #${count}: ${req.url}`)
+    next()
+}
+app.use('/', LogReq)
 
 // User Authentication
 const { authRoutes } = require('./routes/authentication')
