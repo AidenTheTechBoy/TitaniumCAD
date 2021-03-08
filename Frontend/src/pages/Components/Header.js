@@ -1,6 +1,7 @@
+import { faArrowLeft, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 export default class Header extends React.Component {
     render() {
@@ -18,7 +19,10 @@ export default class Header extends React.Component {
                             localStorage.removeItem('cookie')
                             window.location = '/'
                         }}>
-                            <p style={{color: 'white', fontSize: '18px', marginTop: 12, marginBottom: 10}}>Logout</p>
+                            <p style={{color: 'white', fontSize: '18px', marginTop: 15, marginBottom: 15}}>
+                                <FontAwesomeIcon style={{color: 'white', fontSize: '18px', marginRight: 5}} className='list-icon' icon={faSignOutAlt} />
+                                Logout
+                            </p>
                         </div>
                     ) : null
                 }
