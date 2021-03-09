@@ -16,7 +16,7 @@ router.post('/integration', middleware.ProvideSecret, async (req, res) => {
     if (req.body.locations) {
         for (const i in req.body.locations) {
             const unit = req.body.locations[i]
-            await CAD.query('UPDATE units SET location = ? WHERE server_id = ? and ingame_id = ?', [unit.location, req.server, unit.id])
+            await CAD.query('UPDATE units SET location = ?, last_update = ? WHERE server_id = ? and ingame_id = ?', [unit.location, Date.now(), req.server, unit.id])
         }
     }
 
@@ -95,15 +95,15 @@ router.post('/unit-override', middleware.LoggedInMember, middleware.ProvideServe
     }
 
     if (callsign) {
-        await CAD.query(`UPDATE units SET callsign = ? WHERE member_id = ? AND server_id = ?`, [callsign, member_id, req.server])
+        await CAD.query(`UPDATE units SET callsign = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [callsign, Date.now(), member_id, req.server])
     }
 
     if (name) {
-        await CAD.query(`UPDATE units SET name = ? WHERE member_id = ? AND server_id = ?`, [name, member_id, req.server])
+        await CAD.query(`UPDATE units SET name = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [name, Date.now(), member_id, req.server])
     }
 
     if (location) {
-        await CAD.query(`UPDATE units SET location = ? WHERE member_id = ? AND server_id = ?`, [location, member_id, req.server])
+        await CAD.query(`UPDATE units SET location = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [location, Date.now(), member_id, req.server])
     }
     
     res.status(200).send('Unit manually updated!')
@@ -119,7 +119,7 @@ router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerI
 
     const call_id = req.body.call_id
 
-    CAD.query(`UPDATE units SET current_call = ? WHERE member_id = ? AND server_id = ?`, [call_id, member_id, req.server])
+    CAD.query(`UPDATE units SET current_call = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [call_id, Date.now(), member_id, req.server])
 
 
     res.status(200).send('Unit assigned to call!')
@@ -129,7 +129,7 @@ router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerI
 router.post('/detach-self', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
     if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
 
-        await CAD.query('UPDATE units SET current_call = NULL WHERE member_id = ? AND server_id = ?', [req.member, req.server])
+        await CAD.query('UPDATE units SET current_call = NULL, last_update = ? WHERE member_id = ? AND server_id = ?', [Date.now(), req.member, req.server])
 
         res.status(200).send('Successfully detached from any active calls!')
         
@@ -146,7 +146,7 @@ router.post('/unit-status', middleware.LoggedInMember, middleware.ProvideServerI
 
     const status = req.body.status
 
-    CAD.query(`UPDATE units SET status = ? WHERE member_id = ? AND server_id = ?`, [status, member_id, req.server])
+    CAD.query(`UPDATE units SET status = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [status, Date.now(), member_id, req.server])
 
 
     res.status(200).send('Unit status changed!')
@@ -162,7 +162,7 @@ router.post('/self-status', middleware.LoggedInMember, middleware.ProvideServerI
             return
         }
 
-        CAD.query(`UPDATE units SET status = ? WHERE member_id = ? AND server_id = ?`, [status, req.member, req.server])
+        CAD.query(`UPDATE units SET status = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [status, Date.now(), req.member, req.server])
 
         res.status(200).send('Self status changed!')
     }
