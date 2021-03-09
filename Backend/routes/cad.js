@@ -4,6 +4,8 @@ const mysql = require('mysql2')
 const middleware = require('../middleware')
 const { CheckPermissions, Permission, PermissionsArray } = require('../permissions')
 const { CAD } = require('../shared')
+const DiscordJS = require('discord.js')
+const Discord = require('../discord')
 
 // router.post('/integration/data', middleware.ProvideSecret, async (req, res) => {
 //     let units = await CAD.query('SELECT * FROM units WHERE server_id = ?', [req.server])
@@ -51,13 +53,34 @@ router.post('/add-unit', middleware.LoggedInMember, middleware.ProvideServerID, 
         //Add Unit to CAD
         await CAD.query(`INSERT INTO units (server_id, member_id, ingame_id, callsign, name, status, last_update) VALUES (?, ?, ?, ?, ?, ?, ?)`, [req.server, req.member, ingame_id, callsign, name, 'AVAILABLE', Date.now()])
 
+        //Webhook Logging
+        const username = (await CAD.query(`SELECT username FROM members WHERE id = ?`, [req.member]))[0][0].username 
+        const embed = new DiscordJS.MessageEmbed()
+        .setTitle('Unit Online')
+        .setColor('#00ff14')
+        .addField('Name', `\`[${callsign}] ${name}\``, true)
+        .addField('In-Game ID', `\`${ingame_id}\``, true)
+        .setFooter(username)
+        .setTimestamp()
+        Discord.SendWebhook(req.community, 'global', embed)
+
         res.status(201).send('Unit added to database!')
     }
 })
 
-router.post('/offduty', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
+router.post('/offduty', middleware.LoggedInMember, middleware.ProvideServerID, middleware.CommunityFromServer, async (req, res) => {
     if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
         CAD.query(`DELETE FROM units WHERE member_id = ? AND server_id = ?`, [req.member, req.server])
+
+        //Webhook Logging
+        const username = (await CAD.query(`SELECT username FROM members WHERE id = ?`, [req.member]))[0][0].username 
+        const embed = new DiscordJS.MessageEmbed()
+        .setTitle('Unit Logged Off')
+        .setColor('#d90910')
+        .setFooter(username)
+        .setTimestamp()
+        Discord.SendWebhook(req.community, 'global', embed)
+
         res.status(200).send('You are now off duty!')
     }
 })
@@ -76,9 +99,21 @@ router.post('/get-unit', middleware.LoggedInMember, async (req, res) => {
     }
 })
 
-router.post('/remove-unit', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
+router.post('/remove-unit', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, middleware.CommunityFromServer, async (req, res) => {
     const id = req.body.id
     await CAD.query(`DELETE FROM units WHERE member_id = ? AND server_id = ?`, [id, req.server])
+
+    //Webhook Logging
+    const username_dispatcher = (await CAD.query(`SELECT username FROM members WHERE id = ?`, [req.member]))[0][0].username 
+    const username_unit = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [id, req.community]))[0][0].username 
+    const embed = new DiscordJS.MessageEmbed()
+    .setTitle('Unit Removed By Dispatcher')
+    .setColor('#d90910')
+    .addField('Unit Username', `\`${username_unit}\``, true)
+    .setFooter(username_dispatcher)
+    .setTimestamp()
+    Discord.SendWebhook(req.community, 'global', embed)
+
     res.status(200).send('Unit removed from CAD!')
 })
 
@@ -88,28 +123,42 @@ router.post('/unit-override', middleware.LoggedInMember, middleware.ProvideServe
     const callsign = req.body.callsign
     const name = req.body.name
     const location = req.body.location
-    
+
     if (!member_id) {
         res.status(400).send('No unit provided!')
         return
     }
 
+    //Webhook Logging
+    // const username_dispatcher = (await CAD.query(`SELECT username FROM members WHERE id = ?`, [req.member]))[0][0].username 
+    // const username_unit = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [member_id, req.community]))[0][0].username 
+    // const embed = new DiscordJS.MessageEmbed()
+    // .setTitle('Unit Modified By Dispatcher')
+    // .setColor('#6200ff')
+    // .addField('Username', `\`${username_unit}\``, true)
+    // .setFooter(username_dispatcher)
+    // .setTimestamp()
+
     if (callsign) {
         await CAD.query(`UPDATE units SET callsign = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [callsign, Date.now(), member_id, req.server])
+        // embed.addField('New Callsign', `\`${callsign}\``, true)
     }
 
     if (name) {
         await CAD.query(`UPDATE units SET name = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [name, Date.now(), member_id, req.server])
+        // embed.addField('New Name', `\`${name}\``, true)
     }
 
     if (location) {
         await CAD.query(`UPDATE units SET location = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [location, Date.now(), member_id, req.server])
+        // embed.addField('New Location', `\`${location}\``, true)
     }
     
+    // Discord.SendWebhook(req.community, 'global', embed)
     res.status(200).send('Unit manually updated!')
 })
 
-router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
+router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, middleware.CommunityFromServer, async (req, res) => {
 
     const member_id = req.body.member_id
     if (!member_id) {
@@ -121,15 +170,39 @@ router.post('/assign-unit', middleware.LoggedInMember, middleware.ProvideServerI
 
     CAD.query(`UPDATE units SET current_call = ?, last_update = ? WHERE member_id = ? AND server_id = ?`, [call_id, Date.now(), member_id, req.server])
 
+    //Webhook Logging
+    const username = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [member_id, req.community]))[0][0].username 
+    const username_dispatcher = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [req.member, req.community]))[0][0].username 
+    const embed = new DiscordJS.MessageEmbed()
+    .setTitle(call_id ? 'Unit Attached To Call' : 'Unit Detached From Call')
+    .setColor(call_id ? '#6200ff' : '#934fff')
+    .addField('Name', `\`${username}\``, true)
+    .setFooter(username_dispatcher)
+    .setTimestamp()
+
+    if (call_id) {
+        embed.addField('Call ID', `\`${call_id}\``, true)
+    }
+
+    Discord.SendWebhook(req.community, 'global', embed)
 
     res.status(200).send('Unit assigned to call!')
 
 })
 
-router.post('/detach-self', middleware.LoggedInMember, middleware.ProvideServerID, async (req, res) => {
+router.post('/detach-self', middleware.LoggedInMember, middleware.ProvideServerID, middleware.CommunityFromServer, async (req, res) => {
     if (await PermissionsArray(req, res, ['POLICE_MDT', 'FIRE_MDT'])) {
 
         await CAD.query('UPDATE units SET current_call = NULL, last_update = ? WHERE member_id = ? AND server_id = ?', [Date.now(), req.member, req.server])
+
+        //Webhook Logging
+        const username = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [req.member, req.community]))[0][0].username 
+        const embed = new DiscordJS.MessageEmbed()
+        .setTitle('Unit Self-Detached From Call')
+        .setColor('#934fff')
+        .setFooter(username)
+        .setTimestamp()
+        Discord.SendWebhook(req.community, 'global', embed)
 
         res.status(200).send('Successfully detached from any active calls!')
         
@@ -181,7 +254,7 @@ router.post('/my-status', middleware.LoggedInMember, middleware.ProvideServerID,
     }
 })
 
-router.post('/calls', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
+router.post('/calls', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, middleware.CommunityFromServer, async (req, res) => {
     const call_id = req.body.call_id
     const call_info = {
         title: req.body.title,
@@ -219,18 +292,38 @@ router.post('/calls', middleware.LoggedInMember, middleware.ProvideServerID, Per
         return
     }
 
-    CAD.query(
+    const result = await CAD.query(
         `INSERT INTO calls (server_id, title, origin, status, priority, code, \`primary\`, address, postal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [req.server, call_info.title, call_info.origin, call_info.status, call_info.priority, call_info.code, call_info.primary, call_info.location, call_info.postal]
     )
 
+    //Webhook Logging
+    const username = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [req.member, req.community]))[0][0].username 
+    const embed = new DiscordJS.MessageEmbed()
+    .setTitle('Dispatch Call Created')
+    .setColor('#6200ff')
+    .addField('Title', `\`${call_info.title ? call_info.title.toLowerCase() : 'Not Specified'}\``, true)
+    .addField('Call ID', `\`${result[0].insertId}\``, true)
+    .setFooter(username)
+    .setTimestamp()
+    Discord.SendWebhook(req.community, 'global', embed)
+
     res.status(201).send('Call Created!')
 })
 
-router.post('/deletecall', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, async (req, res) => {
+router.post('/deletecall', middleware.LoggedInMember, middleware.ProvideServerID, Permission.Dispatch, middleware.CommunityFromServer, async (req, res) => {
     let call_id = req.body.call_id
 
     CAD.query(`DELETE FROM calls WHERE id = ? AND server_id = ?`, [call_id, req.server])
+
+    //Webhook Logging
+    const username = (await CAD.query(`SELECT username FROM members WHERE id = ? AND community_id = ?`, [req.member, req.community]))[0][0].username 
+    const embed = new DiscordJS.MessageEmbed()
+    .setTitle(`Dispatch Call (\`${call_id}\`) Removed`)
+    .setColor('#934fff')
+    .setFooter(username)
+    .setTimestamp()
+    Discord.SendWebhook(req.community, 'global', embed)
 
     res.status(200).send('Call Removed')
 })
@@ -337,11 +430,22 @@ router.post('/911', async (req, res) => {
     }
 
     const server_id = results[0][0].id
+    req.community = (await CAD.query(`SELECT community_id FROM servers WHERE id = ?`, [server_id]))[0][0].community_id
 
     CAD.query(
         `INSERT INTO \`911\` (server_id, caller, details, address, timestamp, active) VALUES (?, ?, ?, ?, ?, ?)`,
         [server_id, caller, details, address, Date.now(), true]
     )
+
+    //Webhook Logging
+    const embed = new DiscordJS.MessageEmbed()
+    .setTitle('911 Call')
+    .setColor('#087fff')
+    .addField('Caller', `\`${caller}\``, false)
+    .addField('Details', `\`${details}\``, false)
+    .addField('Location', `\`${address}\``, false)
+    .setTimestamp()
+    Discord.SendWebhook(req.community, 'global', embed)
 
     res.status(201).send('Call sent to 911 operators!')
 })

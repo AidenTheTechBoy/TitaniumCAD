@@ -181,4 +181,16 @@ const GetPlanRestrictions = async function (req, res, next) {
 
 }
 
-module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID, ProvideSecret, GetPlanRestrictions}
+const CommunityFromServer = async function (req, res, next) {
+    if (!req.community) {
+        if (!req.server) {
+            res.status(400).send('No server or community provided! Unable to check plan.')
+            return
+        }
+        const community = await CAD.query(`SELECT community_id FROM servers WHERE id = ?`, [req.server])
+        req.community = community[0][0].community_id
+    }
+    next()
+}
+
+module.exports = { LoggedInUser, LoggedInMember, ProvideCommunity, ProvideCivilianAuth, ProvideCommunityID, ProvideServerID, ProvideSecret, GetPlanRestrictions, CommunityFromServer }
