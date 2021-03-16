@@ -96,13 +96,13 @@ export default class Settings extends React.Component {
         }
 
         return (
-            <div id='main-container'>
+            <div id='main-container' style={{"overflow": "auto"}}>
                 <Header back='/dashboard' />
                 <div className='settings-header'>
                     <div onClick={() => this.setState({pageName: 'Global Settings'})}>Global Settings</div>
                     <div onClick={() => this.setState({pageName: 'Manage Servers'})}>Manage Servers</div>
                     <div onClick={() => this.setState({pageName: 'Manage Members'})}>Manage Members</div>
-                    <div onClick={() => this.setState({pageName: 'Manage Departments'})}>Manage Departments</div>
+                    {/* <div onClick={() => this.setState({pageName: 'Manage Departments'})}>Manage Departments</div> */}
                     <div onClick={() => {
                         this.setState({
                             pageName: '10-Codes Setup',
@@ -359,9 +359,24 @@ export default class Settings extends React.Component {
         return (
             <div>
                 <div className='list-container settings-member-container'>
+                    <div className='list-box'>
+                        <div style={{flex: 1, marginTop: 10, marginBottom: 10}}>
+                            <p className='list-header'>Search Members</p>
+                            <p className='list-subheader'></p>
+                            <div className='settings-tag-container'>
+                            <input style={{color: "white", paddingLeft: 10, backgroundColor: '#111015', border: "none", outline: "none", width: "100%", fontSize: 25, paddingTop: 5, paddingBottom: 5}} type='text' value={this.state.search_member} onChange={(e) => {
+                                this.setState({'search_member': e.target.value})
+                            }}/>
+                            </div>
+                        </div>
+                    </div>
                     <ReactList
                         itemRenderer={(index, key) => {
                             let member = this.state.members[key]
+                            
+                            if (this.state.search_member && !member.username.toUpperCase().startsWith(this.state.search_member.toUpperCase())) {
+                                return
+                            }
                             
                             //Permission Tags
                             let tags = []
