@@ -34,7 +34,7 @@ app.use(cors())
 app.use("/", rateLimit({
     windowMs: 10000,
     max: 40,
-    message: 'You are sending requests too quickly! Slow down!'
+    message: 'You are sending requests too quickly! Slow down!',
 }))
 
 // 100 req / 1 min

@@ -15,11 +15,12 @@ const rateLimits = {
         message: "To many logins from this IP! Try again in ten minutes!"
     }),
 
-    // 10 req / 10 min
+    // 10 req / 1 day
     createLimit1: rateLimit({
-        windowMs: 10 * 60 * 1000,
+        windowMs: 24 * 60 * 60 * 1000,
         max: 10,
-        message: "To many attempted creations from this IP! Wait 10 minutes!"
+        message: "To many creations from this IP! Wait 24 hours!",
+        skipFailedRequests: true
     }),
     // 3 req / 1 Hour
     createLimit2: rateLimit({
