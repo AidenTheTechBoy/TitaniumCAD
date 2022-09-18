@@ -2,6 +2,9 @@
 
 Roleplay CAD system created by Titanium Development.
 
+## DEPRECIATED
+THIS PROJECT IS NO LONGER IN DEVELOPMENT. SUPPORT WILL NOT BE PROVIDED.
+
 ## Pricing Plans
 
 ### Free
